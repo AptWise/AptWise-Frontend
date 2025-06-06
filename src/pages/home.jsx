@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './home.css';
-import icon from '../assets/icon.svg'; // assuming .png, change if .svg
+import icon from '../assets/icon.svg';
 import Button from '../components/Button';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="home-container">
       {/* Top Navigation Bar */}
@@ -19,7 +22,7 @@ const Home = () => {
           <a href="#">About</a>
         </div>
         <div className="nav-actions">
-          <button className="btn login">Login</button>
+          <button className="btn login" onClick={() => navigate('/login')}>Login</button>
           <button className="btn get-started">Get Started</button>
         </div>
       </nav>
@@ -33,7 +36,7 @@ const Home = () => {
           </p>
           <div className="hero-buttons">
             <Button type="primary" text="Try Demo" />
-            <Button type="secondary" text="Explore Features" />
+            <Button type="secondary" text="Explore Features" onClick={() => navigate('/login')} />
           </div>
         </div>
       </section>
