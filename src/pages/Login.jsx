@@ -150,7 +150,7 @@ const Login = () => {
    
                         <div className="mt-6 text-center text-gray-400 text-sm">
                             Don't have an account?{' '}
-                            <button onClick={() => navigate('/')} className="text-cyan-400 hover:text-cyan-300 focus:outline-none">
+                            <button onClick={() => navigate('/registration')} className="text-cyan-400 hover:text-cyan-300 focus:outline-none">
                                 Sign up
                             </button>
                         </div>
