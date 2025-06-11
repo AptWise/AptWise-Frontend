@@ -19,15 +19,93 @@ const Registration = () => {
     interviewCategories: [],
     difficulty: 'medium'
   });
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    terms: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const navigate = useNavigate();
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 8;
+  };
+
+  const validateConfirmPassword = (password, confirmPassword) => {
+    return password === confirmPassword;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    if (name === 'terms') {
+      setTermsChecked(checked);
+      setErrors(prev => ({ ...prev, terms: '' }));
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateStep1 = () => {
+    let valid = true;
+    const newErrors = {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      terms: ''
+    };
+
+    if (!formData.fullName.trim()) {
+      valid = false;
+    }
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      valid = false;
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      valid = false;
+    } else if (!validatePassword(formData.password)) {
+      newErrors.password = 'Password must be at least 8 characters';
+      valid = false;
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+      valid = false;
+    } else if (!validateConfirmPassword(formData.password, formData.confirmPassword)) {
+      newErrors.confirmPassword = 'Passwords do not match';
+      valid = false;
+    }
+
+    if (!termsChecked) {
+      newErrors.terms = 'You must agree to the terms and conditions';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const handleSkillChange = (e) => {
@@ -65,7 +143,13 @@ const Registration = () => {
     }, 2000);
   };
 
-  const nextStep = () => setStep(prev => prev + 1);
+  const nextStep = () => {
+    if (step === 1 && !validateStep1()) {
+      return;
+    }
+    setStep(prev => prev + 1);
+  };
+  
   const prevStep = () => setStep(prev => prev - 1);
 
   return (
@@ -111,9 +195,10 @@ const Registration = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+                    className={`w-full px-4 py-3 bg-gray-700 border ${errors.email ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
                     placeholder="Email Address"
                   />
+                  {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                 </div>
                 <div>
                   <input
@@ -122,9 +207,10 @@ const Registration = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Password"
+                    className={`w-full px-4 py-3 bg-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
+                    placeholder="Password (min 8 characters)"
                   />
+                  {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                 </div>
                 <div>
                   <input
@@ -133,25 +219,30 @@ const Registration = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+                    className={`w-full px-4 py-3 bg-gray-700 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
                     placeholder="Confirm Password"
                   />
+                  {errors.confirmPassword && <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>}
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-start">
                   <input
                     id="terms"
+                    name="terms"
                     type="checkbox"
-                    required
-                    className="form-checkbox h-4 w-4 text-cyan-500 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500"
+                    checked={termsChecked}
+                    onChange={handleChange}
+                    className="form-checkbox h-4 w-4 text-cyan-500 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 mt-1"
                   />
                   <label htmlFor="terms" className="ml-2 text-sm text-gray-400">
                     I agree to the <span className="text-cyan-400">Terms & Conditions</span>
                   </label>
                 </div>
+                {errors.terms && <p className="text-sm text-red-400">{errors.terms}</p>}
 
                 <div className="pt-2">
                   <button
+                    type="button"
                     onClick={nextStep}
                     className="w-full py-3 px-4 bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
