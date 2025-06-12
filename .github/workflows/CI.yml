@@ -1,0 +1,37 @@
+name: React CI Pipeline
+
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  lint-and-pr:
+    if: "!startsWith(github.event.head_commit.message, 'ci:')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_COUNT=$(gh pr list --base main --head dev --json number | jq 'length')
+          if [ "$PR_COUNT" -eq 0 ]; then
+            gh pr create --base main --head dev --title "Auto PR: Merge dev into main (React App)" --body "This PR was automatically created by the CI pipeline after successful lint checks on the dev branch for the React application."
+          else
+            echo "An open pull request from dev to main already exists. No new PR will be created."
+          fi
+    
