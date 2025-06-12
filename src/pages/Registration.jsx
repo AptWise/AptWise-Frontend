@@ -45,15 +45,6 @@ const Registration = () => {
     return criteria;
   };
 
-  const getPasswordStrength = (password) => {
-    const criteria = validatePassword(password);
-    const score = Object.values(criteria).filter(Boolean).length;
-    if (score <= 2) return { level: 'weak', color: 'red' };
-    if (score <= 3) return { level: 'medium', color: 'yellow' };
-    if (score <= 4) return { level: 'good', color: 'green' };
-    return { level: 'strong', color: 'green' };
-  };
-
   const generateEmailSuggestion = (email) => {
     const atIndex = email.lastIndexOf('@');
     if (atIndex === -1) return '';
