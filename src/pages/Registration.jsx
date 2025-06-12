@@ -18,8 +18,7 @@ const Registration = () => {
     practiceMode: true,
     interviewCategories: [],
     difficulty: 'medium'
-  });
-  const [errors, setErrors] = useState({
+  });  const [errors, setErrors] = useState({
     email: '',
     password: '',
     confirmPassword: '',
@@ -27,21 +26,75 @@ const Registration = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
+  const [emailSuggestion, setEmailSuggestion] = useState('');
+  const [showEmailSuggestion, setShowEmailSuggestion] = useState(false);
   const navigate = useNavigate();
-
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
   const validatePassword = (password) => {
-    return password.length >= 8;
+    const criteria = {
+      length: password.length >= 8,
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      number: /\d/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password)
+    };
+    return criteria;
+  };
+
+  const getPasswordStrength = (password) => {
+    const criteria = validatePassword(password);
+    const score = Object.values(criteria).filter(Boolean).length;
+    if (score <= 2) return { level: 'weak', color: 'red' };
+    if (score <= 3) return { level: 'medium', color: 'yellow' };
+    if (score <= 4) return { level: 'good', color: 'green' };
+    return { level: 'strong', color: 'green' };
+  };
+
+  const generateEmailSuggestion = (email) => {
+    const atIndex = email.lastIndexOf('@');
+    if (atIndex === -1) return '';
+    
+    const domain = email.substring(atIndex + 1).toLowerCase();
+    const localPart = email.substring(0, atIndex);
+    
+    const suggestions = {
+      'g': 'gmail.com',
+      'gm': 'gmail.com',
+      'gma': 'gmail.com',
+      'gmai': 'gmail.com',
+      'gmail': 'gmail.com',
+      'y': 'yahoo.com',
+      'ya': 'yahoo.com',
+      'yah': 'yahoo.com',
+      'yaho': 'yahoo.com',
+      'yahoo': 'yahoo.com',
+      'o': 'outlook.com',
+      'ou': 'outlook.com',
+      'out': 'outlook.com',
+      'outl': 'outlook.com',
+      'outlo': 'outlook.com',
+      'outlok': 'outlook.com',
+      'outlook': 'outlook.com',
+      'h': 'hotmail.com',
+      'ho': 'hotmail.com',
+      'hot': 'hotmail.com',
+      'hotm': 'hotmail.com',
+      'hotma': 'hotmail.com',
+      'hotmai': 'hotmail.com',
+      'hotmail': 'hotmail.com'
+    };
+
+    const suggestion = suggestions[domain];
+    return suggestion ? `${localPart}@${suggestion}` : '';
   };
 
   const validateConfirmPassword = (password, confirmPassword) => {
     return password === confirmPassword;
   };
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -56,9 +109,64 @@ const Registration = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    // Real-time validation
+    if (name === 'email') {
+      setShowEmailSuggestion(false);
+      setEmailSuggestion('');
+      
+      // Generate email suggestion
+      if (value.includes('@')) {
+        const suggestion = generateEmailSuggestion(value);
+        if (suggestion && suggestion !== value) {
+          setEmailSuggestion(suggestion);
+          setShowEmailSuggestion(true);
+        }
+      }
+      
+      // Validate email in real-time
+      if (value && !validateEmail(value)) {
+        setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
+      } else {
+        setErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
+    
+    if (name === 'password') {
+      // Validate password in real-time
+      const criteria = validatePassword(value);
+      const validCount = Object.values(criteria).filter(Boolean).length;
+      
+      if (value && validCount < 5) {
+        let errorMsg = 'Password must include: ';
+        const missing = [];
+        if (!criteria.length) missing.push('8+ characters');
+        if (!criteria.uppercase) missing.push('uppercase letter');
+        if (!criteria.lowercase) missing.push('lowercase letter');
+        if (!criteria.number) missing.push('number');
+        if (!criteria.special) missing.push('special character');
+        setErrors(prev => ({ ...prev, password: errorMsg + missing.join(', ') }));
+      } else {
+        setErrors(prev => ({ ...prev, password: '' }));
+      }
+    }
+    
+    if (name === 'confirmPassword') {
+      // Validate confirm password in real-time
+      if (value && !validateConfirmPassword(formData.password, value)) {
+        setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
+      } else {
+        setErrors(prev => ({ ...prev, confirmPassword: '' }));
+      }
+    }
+  };
+
+  const handleEmailKeyDown = (e) => {
+    if (e.key === 'Tab' && showEmailSuggestion && emailSuggestion) {
+      e.preventDefault();
+      setFormData(prev => ({ ...prev, email: emailSuggestion }));
+      setShowEmailSuggestion(false);
+      setEmailSuggestion('');
+      setErrors(prev => ({ ...prev, email: '' }));
     }
   };
 
@@ -81,14 +189,23 @@ const Registration = () => {
     } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
       valid = false;
-    }
-
-    if (!formData.password) {
+    }    if (!formData.password) {
       newErrors.password = 'Password is required';
       valid = false;
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters';
-      valid = false;
+    } else {
+      const criteria = validatePassword(formData.password);
+      const validCount = Object.values(criteria).filter(Boolean).length;
+      if (validCount < 5) {
+        let errorMsg = 'Password must include: ';
+        const missing = [];
+        if (!criteria.length) missing.push('8+ characters');
+        if (!criteria.uppercase) missing.push('uppercase letter');
+        if (!criteria.lowercase) missing.push('lowercase letter');
+        if (!criteria.number) missing.push('number');
+        if (!criteria.special) missing.push('special character');
+        newErrors.password = errorMsg + missing.join(', ');
+        valid = false;
+      }
     }
 
     if (!formData.confirmPassword) {
@@ -187,20 +304,33 @@ const Registration = () => {
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     placeholder="Full Name"
                   />
-                </div>
-                <div>
+                </div>                <div className="relative">
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    onKeyDown={handleEmailKeyDown}
                     required
                     className={`w-full px-4 py-3 bg-gray-700 border ${errors.email ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
                     placeholder="Email Address"
+                    autoComplete="off"
                   />
+                  {showEmailSuggestion && emailSuggestion && (
+                    <div className="absolute top-0 left-0 w-full px-4 py-3 text-gray-400 pointer-events-none bg-transparent">
+                      <span className="invisible">{formData.email}</span>
+                      <span className="text-gray-500">{emailSuggestion.substring(formData.email.length)}</span>
+                    </div>
+                  )}
+                  {showEmailSuggestion && emailSuggestion && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <span className="text-xs text-gray-400 bg-gray-600 px-2 py-1 rounded">
+                        Press Tab
+                      </span>
+                    </div>
+                  )}
                   {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
-                </div>
-                <div>
+                </div>                <div>
                   <input
                     type="password"
                     name="password"
@@ -210,6 +340,50 @@ const Registration = () => {
                     className={`w-full px-4 py-3 bg-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
                     placeholder="Password (min 8 characters)"
                   />
+                  {formData.password && (
+                    <div className="mt-2 space-y-2">
+                      <div className="flex space-x-1">
+                        {[1, 2, 3, 4, 5].map((index) => {
+                          const criteria = validatePassword(formData.password);
+                          const validCount = Object.values(criteria).filter(Boolean).length;
+                          const isActive = index <= validCount;
+                          let color = 'bg-gray-600';
+                          if (isActive && validCount <= 2) color = 'bg-red-500';
+                          else if (isActive && validCount <= 3) color = 'bg-yellow-500';
+                          else if (isActive) color = 'bg-green-500';
+                          
+                          return (
+                            <div
+                              key={index}
+                              className={`h-1 flex-1 rounded transition-colors duration-200 ${color}`}
+                            />
+                          );
+                        })}
+                      </div>
+                      <div className="grid grid-cols-3 gap-1 text-xs">
+                        {[
+                          { key: 'length', label: '8+ chars' },
+                          { key: 'uppercase', label: 'A-Z' },
+                          { key: 'lowercase', label: 'a-z' },
+                          { key: 'number', label: '0-9' },
+                          { key: 'special', label: '!@#$' }
+                        ].map(({ key, label }) => {
+                          const criteria = validatePassword(formData.password);
+                          const isValid = criteria[key];
+                          return (
+                            <span
+                              key={key}
+                              className={`transition-colors duration-200 ${
+                                isValid ? 'text-green-400' : 'text-gray-500'
+                              }`}
+                            >
+                              {isValid ? '✓' : '○'} {label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                 </div>
                 <div>
