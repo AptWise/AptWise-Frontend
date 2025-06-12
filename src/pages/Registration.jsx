@@ -51,7 +51,6 @@ const Registration = () => {
     
     const domain = email.substring(atIndex + 1).toLowerCase();
     const localPart = email.substring(0, atIndex);
-    
     const suggestions = {
       'g': 'gmail.com',
       'gm': 'gmail.com',
