@@ -1,0 +1,120 @@
+/**
+ * API service for handling backend communication
+ */
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+class ApiService {
+  constructor() {
+    this.baseURL = API_BASE_URL;
+  }
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      credentials: 'include', // Include cookies for JWT
+      ...options,
+    };
+
+    console.log(`Making API request: ${config.method || 'GET'} ${url}`);
+
+    try {
+      const response = await fetch(url, config);
+      
+      console.log(`API response status: ${response.status} for ${url}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`API error for ${url}:`, errorData);
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`API success for ${url}:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  // Auth endpoints
+  async createAccount(userData) {
+    return this.request('/auth/create-account', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async login(credentials) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  async logout() {
+    return this.request('/auth/logout', {
+      method: 'POST',
+    });
+  }
+
+  async getCurrentUser() {
+    return this.request('/auth/me');
+  }
+
+  // LinkedIn OAuth endpoints
+  async getLinkedInAuthUrl() {
+    return this.request('/auth/linkedin/authorize');
+  }
+
+  async handleLinkedInCallback(code, state) {
+    return this.request('/auth/linkedin/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
+
+  async connectLinkedIn(code, state) {
+    return this.request('/auth/linkedin/connect', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
+
+  async disconnectLinkedIn() {
+    return this.request('/auth/linkedin/disconnect', {
+      method: 'DELETE',
+    });
+  }
+
+  // GitHub OAuth endpoints
+  async getGitHubAuthUrl() {
+    return this.request('/auth/github/authorize');
+  }
+
+  async handleGitHubCallback(code, state) {
+    return this.request('/auth/github/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
+
+  async connectGitHub(code, state) {
+    return this.request('/auth/github/connect', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
+
+  async disconnectGitHub() {
+    return this.request('/auth/github/disconnect', {
+      method: 'POST',
+    });
+  }
+}
+
+export default new ApiService();
