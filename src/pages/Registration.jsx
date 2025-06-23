@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../assets/icon.svg';
 import linkedinService from '../services/linkedinService.js';
@@ -52,8 +52,7 @@ const Registration = () => {
         if (currentUser && currentUser.user) {
           setLinkedinConnected(!!currentUser.user.linkedin_url || !!currentUser.user.is_linkedin_connected);
           setGithubConnected(!!currentUser.user.github_url || !!currentUser.user.is_github_connected);
-        }
-      } catch (error) {
+        }      } catch {
         // User not logged in yet, that's fine
         console.log('User not logged in yet');
       }
@@ -503,9 +502,8 @@ const Registration = () => {
       setGithubLoading(false);
     }
   };
-
   // Helper function to disconnect accounts if needed
-  const handleDisconnectLinkedIn = async () => {
+  const _handleDisconnectLinkedIn = async () => {
     try {
       await linkedinService.disconnect();
       setLinkedinConnected(false);
@@ -518,7 +516,7 @@ const Registration = () => {
     }
   };
 
-  const handleDisconnectGitHub = async () => {
+  const _handleDisconnectGitHub = async () => {
     try {
       await githubService.disconnect();
       setGithubConnected(false);
