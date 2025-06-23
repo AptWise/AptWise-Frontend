@@ -1,8 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/home';
-import Login from './pages/login';
+import Login from './pages/Login';
 import Register from './pages/Registration';
+import LinkedInCallback from './pages/LinkedInCallback';
+import GitHubCallback from './pages/GitHubCallback';
+import Dashboard from './pages/Dashboard';
+import LinkedInTest from './pages/LinkedInTest';
+import GitHubTest from './pages/GitHubTest';
 
 const App = () => {
   return (
@@ -10,6 +15,11 @@ const App = () => {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/Registration" element={<Register />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+      <Route path="/auth/github/callback" element={<GitHubCallback />} />
+      <Route path="/test-linkedin" element={<LinkedInTest />} />
+      <Route path="/test-github" element={<GitHubTest />} />
     </Routes>
   );
 };
