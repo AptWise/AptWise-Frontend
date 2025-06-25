@@ -19,6 +19,9 @@ class GitHubService {
       const authData = await apiService.getGitHubAuthUrl();
       
       return new Promise((resolve, reject) => {
+        // Track if message was received to prevent window close error
+        let messageReceived = false;
+        
         // Open GitHub auth window
         this.authWindow = window.open(
           authData.authorization_url,
@@ -34,6 +37,7 @@ class GitHubService {
           }
 
           if (event.data.type === 'GITHUB_AUTH_SUCCESS') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             
             try {
@@ -60,6 +64,7 @@ class GitHubService {
               reject(error);
             }
           } else if (event.data.type === 'GITHUB_AUTH_ERROR') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             this.authWindow?.close();
             reject(new Error(event.data.error || 'GitHub authentication failed'));
@@ -73,7 +78,10 @@ class GitHubService {
           if (this.authWindow?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageListener);
-            reject(new Error('Authentication window was closed'));
+            // Only reject if no message was received
+            if (!messageReceived) {
+              reject(new Error('Authentication window was closed'));
+            }
           }
         }, 1000);
       });
@@ -93,6 +101,9 @@ class GitHubService {
       const authData = await apiService.getGitHubAuthUrl();
       
       return new Promise((resolve, reject) => {
+        // Track if message was received to prevent window close error
+        let messageReceived = false;
+        
         // Open GitHub auth window
         this.authWindow = window.open(
           authData.authorization_url,
@@ -108,6 +119,7 @@ class GitHubService {
           }
 
           if (event.data.type === 'GITHUB_AUTH_SUCCESS') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             
             try {
@@ -124,6 +136,7 @@ class GitHubService {
               reject(error);
             }
           } else if (event.data.type === 'GITHUB_AUTH_ERROR') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             this.authWindow?.close();
             reject(new Error(event.data.error || 'GitHub authentication failed'));
@@ -137,7 +150,10 @@ class GitHubService {
           if (this.authWindow?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageListener);
-            reject(new Error('Authentication window was closed'));
+            // Only reject if no message was received
+            if (!messageReceived) {
+              reject(new Error('Connection window was closed'));
+            }
           }
         }, 1000);
       });
