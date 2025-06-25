@@ -16,7 +16,6 @@ const Registration = () => {
     confirmPassword: '',
     skills: [],
     experience: '',
-    careerGoals: '',
     linkedInUrl: '',
     githubUrl: '',
     jobDescription: '',
@@ -250,12 +249,14 @@ const Registration = () => {
   };
 
   const handleSkillChange = (e) => {
-    if (e.key === 'Enter' && e.target.value) {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      const skillValue = e.target.value.trim();
       setFormData(prev => ({
         ...prev,
-        skills: [...prev.skills, e.target.value]
+        skills: [...prev.skills, skillValue]
       }));
       e.target.value = '';
+      e.preventDefault(); // Prevent form submission on Enter
     }
   };
 
@@ -915,27 +916,36 @@ const Registration = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Career Goals</label>
-                  <textarea
-                    name="careerGoals"
-                    value={formData.careerGoals}
-                    onChange={handleChange}
-                    rows="3"
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Describe your career aspirations..."
-                  ></textarea>
-                </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">LinkedIn Profile URL</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    LinkedIn Profile URL
+                    {linkedinConnected && <span className="ml-2 text-xs text-green-400">(Connected)</span>}
+                  </label>
                   <input
                     type="url"
                     name="linkedInUrl"
                     value={formData.linkedInUrl}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    disabled={linkedinConnected}
+                    className={`w-full px-4 py-2 bg-gray-700 border ${linkedinConnected ? 'border-green-600 bg-gray-800' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${linkedinConnected ? 'opacity-80 cursor-not-allowed' : ''}`}
                     placeholder="https://linkedin.com/in/yourprofile"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    GitHub Profile URL
+                    {githubConnected && <span className="ml-2 text-xs text-green-400">(Connected)</span>}
+                  </label>
+                  <input
+                    type="url"
+                    name="githubUrl"
+                    value={formData.githubUrl}
+                    onChange={handleChange}
+                    disabled={githubConnected}
+                    className={`w-full px-4 py-2 bg-gray-700 border ${githubConnected ? 'border-green-600 bg-gray-800' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${githubConnected ? 'opacity-80 cursor-not-allowed' : ''}`}
+                    placeholder="https://github.com/yourusername"
                   />
                 </div>                <div className="flex justify-between pt-4">
                   <button

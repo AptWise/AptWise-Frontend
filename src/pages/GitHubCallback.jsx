@@ -48,7 +48,7 @@ const GitHubCallback = () => {
       setTimeout(() => {
         console.log('Closing GitHub popup window');
         window.close();
-      }, 500);
+      }, 1500);
     };
 
     handleCallback();

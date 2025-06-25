@@ -47,7 +47,7 @@ const LinkedInCallback = () => {  useEffect(() => {
       setTimeout(() => {
         console.log('Closing LinkedIn popup window');
         window.close();
-      }, 500);
+      }, 1500);
     };
 
     handleCallback();

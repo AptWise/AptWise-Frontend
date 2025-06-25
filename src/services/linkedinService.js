@@ -19,6 +19,9 @@ class LinkedInService {
       const authData = await apiService.getLinkedInAuthUrl();
       
       return new Promise((resolve, reject) => {
+        // Track if message was received to prevent window close error
+        let messageReceived = false;
+        
         // Open LinkedIn auth window
         this.authWindow = window.open(
           authData.authorization_url,
@@ -34,9 +37,11 @@ class LinkedInService {
           }
 
           if (event.data.type === 'LINKEDIN_AUTH_SUCCESS') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             
-            try {              // Handle the callback with the authorization code
+            try {
+              // Handle the callback with the authorization code
               const result = await apiService.handleLinkedInCallback(
                 event.data.code,
                 event.data.state
@@ -59,6 +64,7 @@ class LinkedInService {
               reject(error);
             }
           } else if (event.data.type === 'LINKEDIN_AUTH_ERROR') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             this.authWindow?.close();
             reject(new Error(event.data.error || 'LinkedIn authentication failed'));
@@ -72,7 +78,10 @@ class LinkedInService {
           if (this.authWindow?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageListener);
-            reject(new Error('Authentication window was closed'));
+            // Only reject if no message was received
+            if (!messageReceived) {
+              reject(new Error('Authentication window was closed'));
+            }
           }
         }, 1000);
       });
@@ -91,6 +100,9 @@ class LinkedInService {
       const authData = await apiService.getLinkedInAuthUrl();
       
       return new Promise((resolve, reject) => {
+        // Track if message was received to prevent window close error
+        let messageReceived = false;
+        
         this.authWindow = window.open(
           authData.authorization_url,
           'linkedin_connect',
@@ -103,6 +115,7 @@ class LinkedInService {
           }
 
           if (event.data.type === 'LINKEDIN_AUTH_SUCCESS') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             
             try {
@@ -118,6 +131,7 @@ class LinkedInService {
               reject(error);
             }
           } else if (event.data.type === 'LINKEDIN_AUTH_ERROR') {
+            messageReceived = true;
             window.removeEventListener('message', messageListener);
             this.authWindow?.close();
             reject(new Error(event.data.error || 'LinkedIn connection failed'));
@@ -130,7 +144,10 @@ class LinkedInService {
           if (this.authWindow?.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageListener);
-            reject(new Error('Connection window was closed'));
+            // Only reject if no message was received
+            if (!messageReceived) {
+              reject(new Error('Connection window was closed'));
+            }
           }
         }, 1000);
       });
