@@ -485,6 +485,15 @@ const Registration = () => {
       console.log('Starting GitHub connection...');
       const result = await githubService.connect();
       console.log('GitHub connected successfully:', result);
+      
+      // Extract GitHub URL from response if available
+      if (result && result.github_profile && result.github_profile.github_url) {
+        setFormData(prev => ({
+          ...prev,
+          githubUrl: result.github_profile.github_url
+        }));
+      }
+      
       setGithubConnected(true);
       alert('GitHub account connected successfully!');
     } catch (error) {
@@ -927,8 +936,7 @@ const Registration = () => {
                     name="linkedInUrl"
                     value={formData.linkedInUrl}
                     onChange={handleChange}
-                    disabled={linkedinConnected}
-                    className={`w-full px-4 py-2 bg-gray-700 border ${linkedinConnected ? 'border-green-600 bg-gray-800' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${linkedinConnected ? 'opacity-80 cursor-not-allowed' : ''}`}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                     placeholder="https://linkedin.com/in/yourprofile"
                   />
                 </div>
