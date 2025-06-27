@@ -63,7 +63,18 @@ class ApiService {
   }
 
   async getCurrentUser() {
-    return this.request('/auth/me');
+    try {
+      return await this.request('/auth/me');
+    } catch (error) {
+      // Handle authentication errors gracefully
+      if (error.message.includes('Not authenticated') || 
+          error.message.includes('401') ||
+          error.message.includes('User not found')) {
+        // User is not logged in, return null instead of throwing
+        return null;
+      }
+      throw error;
+    }
   }
 
   // LinkedIn OAuth endpoints
@@ -113,6 +124,21 @@ class ApiService {
   async disconnectGitHub() {
     return this.request('/auth/github/disconnect', {
       method: 'POST',
+    });
+  }
+
+  // OAuth profile endpoints for registration (don't create users)
+  async getLinkedInProfileForRegistration(code, state) {
+    return this.request('/auth/linkedin/profile', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
+
+  async getGitHubProfileForRegistration(code, state) {
+    return this.request('/auth/github/profile', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
     });
   }
 }
