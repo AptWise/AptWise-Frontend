@@ -40,6 +40,13 @@ const Registration = () => {
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubConnected, setGithubConnected] = useState(false);
   const [linkedinConnected, setLinkedinConnected] = useState(false);
+  
+  // OAuth profile data storage (for registration flow)
+  const [oAuthProfiles, setOAuthProfiles] = useState({
+    linkedin: null,
+    github: null
+  });
+  
   const navigate = useNavigate();
 
   // Initialize connection states based on existing user data (if any)
@@ -51,7 +58,12 @@ const Registration = () => {
         if (currentUser && currentUser.user) {
           setLinkedinConnected(!!currentUser.user.linkedin_url || !!currentUser.user.is_linkedin_connected);
           setGithubConnected(!!currentUser.user.github_url || !!currentUser.user.is_github_connected);
-        }      } catch {
+        } else if (currentUser) {
+          // Handle case where user object is directly returned (not wrapped)
+          setLinkedinConnected(!!currentUser.linkedin_url || !!currentUser.is_linkedin_connected);
+          setGithubConnected(!!currentUser.github_url || !!currentUser.is_github_connected);
+        }
+      } catch (error) {
         // User not logged in yet, that's fine
         console.log('User not logged in yet');
       }
@@ -212,10 +224,17 @@ const Registration = () => {
     } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
       valid = false;
-    }    if (!formData.password) {
-      newErrors.password = 'Password is required';
+    }
+    
+    // Check if user has connected OAuth (making password optional)
+    const hasOAuthConnection = oAuthProfiles.linkedin || oAuthProfiles.github;
+    
+    // Password validation - required only if no OAuth connection
+    if (!formData.password && !hasOAuthConnection) {
+      newErrors.password = 'Password is required (or connect via LinkedIn/GitHub)';
       valid = false;
-    } else {
+    } else if (formData.password) {
+      // If password is provided, validate it
       const criteria = validatePassword(formData.password);
       const validCount = Object.values(criteria).filter(Boolean).length;
       if (validCount < 5) {
@@ -231,10 +250,11 @@ const Registration = () => {
       }
     }
 
-    if (!formData.confirmPassword) {
+    // Confirm password validation - only if password is provided
+    if (formData.password && !formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
       valid = false;
-    } else if (!validateConfirmPassword(formData.password, formData.confirmPassword)) {
+    } else if (formData.password && !validateConfirmPassword(formData.password, formData.confirmPassword)) {
       newErrors.confirmPassword = 'Passwords do not match';
       valid = false;
     }
@@ -272,21 +292,46 @@ const Registration = () => {
       const categories = prev.interviewCategories.includes(category)
         ? prev.interviewCategories.filter(c => c !== category)
         : [...prev.interviewCategories, category];
-      return { ...prev, interviewCategories: categories };    });
+      return { ...prev, interviewCategories: categories };
+    });
   };
   
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Create user account
+    // Check if this is an OAuth-only registration (user connected OAuth but didn't set password)
+    const hasOAuthConnection = oAuthProfiles.linkedin || oAuthProfiles.github;
+    const isOAuthOnlyRegistration = hasOAuthConnection && !formData.password;
+    
+    // Create user account with form data and OAuth data
     const userData = {
       name: formData.fullName,
       email: formData.email,
-      password: formData.password,
-      linkedin_url: formData.linkedInUrl,
-      github_url: formData.githubUrl || ''
+      // For OAuth-only users, we'll let the backend generate a secure password
+      password: formData.password || (isOAuthOnlyRegistration ? null : ''),
+      linkedin_url: formData.linkedInUrl || (oAuthProfiles.linkedin?.linkedin_url) || null,
+      github_url: formData.githubUrl || (oAuthProfiles.github?.github_url) || null,
+      // Include LinkedIn OAuth data if available
+      ...(oAuthProfiles.linkedin && {
+        linkedin_id: oAuthProfiles.linkedin.linkedin_id,
+        linkedin_access_token: oAuthProfiles.linkedin.linkedin_access_token,
+        is_linkedin_connected: true
+      }),
+      // Include GitHub OAuth data if available
+      ...(oAuthProfiles.github && {
+        github_id: oAuthProfiles.github.github_id,
+        github_access_token: oAuthProfiles.github.github_access_token,
+        is_github_connected: true,
+        profile_picture_url: oAuthProfiles.github.profile_picture_url
+      }),
+      // Indicate this is OAuth-only registration
+      is_oauth_only: isOAuthOnlyRegistration
     };
+
+    console.log('Creating account with data:', userData);
+    console.log('OAuth profiles:', oAuthProfiles);
+    console.log('Is OAuth-only registration:', isOAuthOnlyRegistration);
 
     apiService.createAccount(userData)
       .then((response) => {
@@ -297,7 +342,8 @@ const Registration = () => {
       .catch((error) => {
         console.error('Account creation failed:', error);
         setIsLoading(false);
-        // Handle error (you might want to show error message to user)        alert(`Registration failed: ${error.message}`);
+        // Handle error (you might want to show error message to user)
+        alert(`Registration failed: ${error.message}`);
       });
   };
   
@@ -330,14 +376,19 @@ const Registration = () => {
         // New LinkedIn user - stay on registration page to complete manually
         console.log('New LinkedIn user, completing registration manually...');
         
-        // Pre-fill form with available LinkedIn data
-        if (result.linkedin_data || result.user) {
-          const userData = result.linkedin_data || result.user;
+        // Store OAuth profile data for later use in registration
+        if (result.profile) {
+          setOAuthProfiles(prev => ({
+            ...prev,
+            linkedin: result.profile
+          }));
+          
+          // Pre-fill form with available LinkedIn data
           setFormData(prev => ({
             ...prev,
-            fullName: userData.name || userData.full_name || prev.fullName,
-            email: userData.email || prev.email,
-            linkedInUrl: userData.linkedin_url || `https://linkedin.com/in/${userData.linkedin_id || ''}`,
+            fullName: result.profile.name || prev.fullName,
+            email: result.profile.email || prev.email,
+            linkedInUrl: result.profile.linkedin_url || `https://linkedin.com/in/${result.profile.linkedin_id || ''}`,
           }));
         }
         
@@ -382,22 +433,46 @@ const Registration = () => {
     setLinkedinLoading(true);
     try {
       console.log('Starting LinkedIn connection...');
-      const result = await linkedinService.connect();
+      
+      // Check if user is logged in to determine which OAuth flow to use
+      const currentUser = await apiService.getCurrentUser();
+
+      let result;
+      if (currentUser) {
+        // User is logged in, use connect flow
+        console.log('User is logged in, using connect flow');
+        result = await linkedinService.connect();
+      } else {
+        // User not logged in, use authentication flow (callback)
+        console.log('User not logged in, using authentication flow');
+        result = await linkedinService.authenticate(true);
+        
+        // If authentication successful, store OAuth profile data
+        if (result && result.profile) {
+          // Store OAuth profile data for later use in registration
+          setOAuthProfiles(prev => ({
+            ...prev,
+            linkedin: result.profile
+          }));
+          
+          // Pre-fill form data if we're in step 1
+          if (step === 1) {
+            setFormData(prev => ({
+              ...prev,
+              fullName: result.profile.name || prev.fullName,
+              email: result.profile.email || prev.email,
+              linkedInUrl: result.profile.linkedin_url || prev.linkedInUrl
+            }));
+          }
+        }
+      }
+      
       console.log('LinkedIn connected successfully:', result);
       setLinkedinConnected(true);
       alert('LinkedIn account connected successfully!');
     } catch (error) {
       console.error('LinkedIn connection failed:', error);
-      // For testing, simulate connection
-      if (error.message.includes('Authentication window was closed') || 
-          error.message.includes('LinkedIn authentication failed') ||
-          error.message.includes('Not authenticated')) {
-        console.log('LinkedIn connection simulated for testing...');
-        setLinkedinConnected(true);
-        alert('LinkedIn account connected successfully! (Simulated for testing)');
-      } else {
-        alert(`LinkedIn connection failed: ${error.message}`);
-      }
+      alert(`LinkedIn connection failed: ${error.message}`);
     } finally {
       setLinkedinLoading(false);
     }
@@ -431,14 +506,18 @@ const Registration = () => {
         // New GitHub user - stay on registration page to complete manually
         console.log('New GitHub user, completing registration manually...');
         
-        // Pre-fill form with available GitHub data
-        if (result.github_data || result.user) {
-          const userData = result.github_data || result.user;
+        // Store OAuth profile data for later use in registration
+        if (result.profile) {
+          setOAuthProfiles(prev => ({
+            ...prev,
+            github: result.profile
+          }));
+          
+          // Pre-fill form with available GitHub data, but preserve user's entered email
           setFormData(prev => ({
             ...prev,
-            fullName: userData.name || userData.full_name || prev.fullName,
-            email: userData.email || prev.email,
-            githubUrl: userData.github_url || `https://github.com/${userData.username || userData.github_id || ''}`,
+            fullName: result.profile.name || prev.fullName,
+            githubUrl: result.profile.github_url || `https://github.com/${result.profile.username || result.profile.github_id || ''}`,
           }));
         }
         
@@ -483,7 +562,37 @@ const Registration = () => {
     setGithubLoading(true);
     try {
       console.log('Starting GitHub connection...');
-      const result = await githubService.connect();
+      
+      // Check if user is logged in to determine which OAuth flow to use
+      const currentUser = await apiService.getCurrentUser();
+
+      let result;
+      if (currentUser) {
+        // User is logged in, use connect flow
+        console.log('User is logged in, using connect flow');
+        result = await githubService.connect();
+      } else {
+        // User not logged in, use authentication flow (callback)
+        console.log('User not logged in, using authentication flow');
+        result = await githubService.authenticate(true);
+        
+        // If authentication successful, store OAuth profile data
+        if (result && result.profile) {
+          // Store OAuth profile data for later use in registration
+          setOAuthProfiles(prev => ({
+            ...prev,
+            github: result.profile
+          }));
+          
+          // Pre-fill form data with GitHub URL, but preserve user's entered email
+          setFormData(prev => ({
+            ...prev,
+            fullName: result.profile.name || prev.fullName,
+            githubUrl: result.profile.github_url || prev.githubUrl
+          }));
+        }
+      }
+      
       console.log('GitHub connected successfully:', result);
       
       // Extract GitHub URL from response if available
@@ -498,16 +607,7 @@ const Registration = () => {
       alert('GitHub account connected successfully!');
     } catch (error) {
       console.error('GitHub connection failed:', error);
-      // For testing, simulate connection
-      if (error.message.includes('Authentication window was closed') || 
-          error.message.includes('GitHub authentication failed') ||
-          error.message.includes('Not authenticated')) {
-        console.log('GitHub connection simulated for testing...');
-        setGithubConnected(true);
-        alert('GitHub account connected successfully! (Simulated for testing)');
-      } else {
-        alert(`GitHub connection failed: ${error.message}`);
-      }
+      alert(`GitHub connection failed: ${error.message}`);
     } finally {
       setGithubLoading(false);
     }
@@ -583,7 +683,9 @@ const Registration = () => {
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     placeholder="Full Name"
                   />
-                </div>                <div className="relative">
+                </div>
+                
+                <div className="relative">
                   <input
                     type="email"
                     name="email"
@@ -609,15 +711,21 @@ const Registration = () => {
                     </div>
                   )}
                   {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
-                </div>                <div>
+                </div>
+                
+                <div>
                   <input
                     type="password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
+                    required={!(oAuthProfiles.linkedin || oAuthProfiles.github)}
                     className={`w-full px-4 py-3 bg-gray-700 border ${errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
-                    placeholder="Password (min 8 characters)"
+                    placeholder={
+                      (oAuthProfiles.linkedin || oAuthProfiles.github) 
+                        ? "Password (optional - OAuth connected)" 
+                        : "Password (min 8 characters)"
+                    }
                   />
                   {formData.password && (
                     <div className="mt-2 space-y-2">
@@ -671,9 +779,13 @@ const Registration = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    required
+                    required={!(oAuthProfiles.linkedin || oAuthProfiles.github) && formData.password}
                     className={`w-full px-4 py-3 bg-gray-700 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200`}
-                    placeholder="Confirm Password"
+                    placeholder={
+                      (oAuthProfiles.linkedin || oAuthProfiles.github) && !formData.password
+                        ? "Confirm Password (optional)" 
+                        : "Confirm Password"
+                    }
                   />
                   {errors.confirmPassword && <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>}
                 </div>
@@ -710,7 +822,9 @@ const Registration = () => {
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-gray-800 text-gray-400">or</span>
                   </div>
-                </div>                <div className="grid grid-cols-2 gap-3">
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
                   <button 
                     type="button"
                     onClick={() => handleLinkedInAuth(true)}
@@ -751,7 +865,8 @@ const Registration = () => {
                     Login
                   </button>
                 </div>
-              </form>            </div>
+              </form>
+            </div>
           )}
           
           {/* Step 2: Link Professional Accounts */}
@@ -773,7 +888,9 @@ const Registration = () => {
                     GitHub {githubConnected ? '✓' : '○'}
                   </div>
                 </div>
-              </div><div className="grid grid-cols-2 gap-4 mb-8">
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8">
                 <button 
                   onClick={handleLinkedInConnect}
                   disabled={linkedinLoading || linkedinConnected}
@@ -955,7 +1072,9 @@ const Registration = () => {
                     className={`w-full px-4 py-2 bg-gray-700 border ${githubConnected ? 'border-green-600 bg-gray-800' : 'border-gray-600'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${githubConnected ? 'opacity-80 cursor-not-allowed' : ''}`}
                     placeholder="https://github.com/yourusername"
                   />
-                </div>                <div className="flex justify-between pt-4">
+                </div>
+                
+                <div className="flex justify-between pt-4">
                   <button
                     onClick={prevStep}
                     className="py-2 px-6 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800"

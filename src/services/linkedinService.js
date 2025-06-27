@@ -41,24 +41,27 @@ class LinkedInService {
             window.removeEventListener('message', messageListener);
             
             try {
-              // Handle the callback with the authorization code
-              const result = await apiService.handleLinkedInCallback(
-                event.data.code,
-                event.data.state
-              );
+              // For registration, use profile endpoint that doesn't create user
+              // For login, use callback endpoint that creates/logs in user
+              let result;
+              if (isRegistration) {
+                result = await apiService.getLinkedInProfileForRegistration(
+                  event.data.code,
+                  event.data.state
+                );
+                result.isNewUser = true;
+                result.isLinkedAccount = false;
+              } else {
+                result = await apiService.handleLinkedInCallback(
+                  event.data.code,
+                  event.data.state
+                );
+                result.isNewUser = !result.user?.id;
+                result.isLinkedAccount = !!result.user?.id;
+              }
               
               this.authWindow?.close();
-              
-              // For registration, check if this is a new user or existing linked account
-              if (isRegistration) {
-                resolve({
-                  ...result,
-                  isNewUser: !result.user?.id, // If no user ID, it's a new registration
-                  isLinkedAccount: !!result.user?.id // If user ID exists, account is already linked
-                });
-              } else {
-                resolve(result);
-              }
+              resolve(result);
             } catch (error) {
               this.authWindow?.close();
               reject(error);
