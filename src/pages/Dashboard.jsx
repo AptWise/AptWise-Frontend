@@ -134,7 +134,7 @@ const Dashboard = () => {
                         <h3 className="text-cyan-400 font-mono text-sm mb-4 tracking-wider">PERSONAL_DATA</h3>
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-gray-400 text-xs font-mono mb-1">IDENTIFIER</label>
+                            <label className="block text-gray-400 text-xs font-mono mb-1">USER_NAME</label>
                             <p className="text-white font-medium text-lg">{user.name || 'CLASSIFIED'}</p>
                           </div>
                           <div>
