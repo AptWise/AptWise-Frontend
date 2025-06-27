@@ -65,7 +65,7 @@ const Registration = () => {
         }
       } catch (error) {
         // User not logged in yet, that's fine
-        console.log('User not logged in yet');
+        console.log('User not logged in yet:' , error.message);
       }
     };
 
