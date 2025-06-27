@@ -513,10 +513,11 @@ const Registration = () => {
             github: result.profile
           }));
           
-          // Pre-fill form with available GitHub data, but preserve user's entered email
+          // Pre-fill form with available GitHub data, including email
           setFormData(prev => ({
             ...prev,
             fullName: result.profile.name || prev.fullName,
+            email: prev.email || result.profile.email || '',
             githubUrl: result.profile.github_url || `https://github.com/${result.profile.username || result.profile.github_id || ''}`,
           }));
         }
@@ -584,10 +585,11 @@ const Registration = () => {
             github: result.profile
           }));
           
-          // Pre-fill form data with GitHub URL, but preserve user's entered email
+          // Pre-fill form data with GitHub data, including email
           setFormData(prev => ({
             ...prev,
             fullName: result.profile.name || prev.fullName,
+            email: prev.email || result.profile.email || '',
             githubUrl: result.profile.github_url || prev.githubUrl
           }));
         }

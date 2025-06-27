@@ -127,6 +127,16 @@ const Dashboard = () => {
                   <label className="block text-sm font-medium text-gray-300">LinkedIn URL</label>
                   <p className="text-white">{user.linkedin_url || 'Not provided'}</p>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">GitHub</label>
+                  <p className={`${user.is_github_connected ? 'text-green-400' : 'text-gray-400'}`}>
+                    {user.is_github_connected ? 'Connected' : 'Not connected'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">GitHub URL</label>
+                  <p className="text-white">{user.github_url || 'Not provided'}</p>
+                </div>
               </div>
             </div>
           )}
