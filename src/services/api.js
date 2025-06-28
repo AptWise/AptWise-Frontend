@@ -77,6 +77,39 @@ class ApiService {
     }
   }
 
+  async getUserSkills() {
+    return this.request('/auth/skills');
+  }
+
+  // User profile management
+  async updateProfile(profileData) {
+    return this.request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async updatePassword(passwordData) {
+    return this.request('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(passwordData),
+    });
+  }
+
+  async addSkill(skillData) {
+    return this.request('/auth/skills', {
+      method: 'POST',
+      body: JSON.stringify(skillData),
+    });
+  }
+
+  async removeSkill(skillData) {
+    return this.request('/auth/skills', {
+      method: 'DELETE',
+      body: JSON.stringify(skillData),
+    });
+  }
+
   // LinkedIn OAuth endpoints
   async getLinkedInAuthUrl() {
     return this.request('/auth/linkedin/authorize');
