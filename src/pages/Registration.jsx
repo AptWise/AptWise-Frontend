@@ -312,6 +312,7 @@ const Registration = () => {
       password: formData.password || (isOAuthOnlyRegistration ? null : ''),
       linkedin_url: formData.linkedInUrl || (oAuthProfiles.linkedin?.linkedin_url) || null,
       github_url: formData.githubUrl || (oAuthProfiles.github?.github_url) || null,
+      skills: formData.skills,
       // Include LinkedIn OAuth data if available
       ...(oAuthProfiles.linkedin && {
         linkedin_id: oAuthProfiles.linkedin.linkedin_id,

@@ -6,14 +6,26 @@ import Icon from '../assets/icon.svg';
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userSkills, setUserSkills] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editMode, setEditMode] = useState('profile'); // 'profile', 'password', 'skills'
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get current user information
-    const fetchUser = async () => {
+    // Get current user information and skills
+    const fetchUserData = async () => {
       try {
         const userData = await apiService.getCurrentUser();
         setUser(userData);
+        
+        // Fetch user skills
+        try {
+          const skillsResponse = await apiService.getUserSkills();
+          setUserSkills(skillsResponse.skills || []);
+        } catch (skillsError) {
+          console.error('Failed to fetch user skills:', skillsError);
+          setUserSkills([]);
+        }
       } catch (error) {
         console.error('Failed to fetch user:', error);
         // If unauthorized, redirect to login
@@ -25,7 +37,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchUser();
+    fetchUserData();
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -36,6 +48,34 @@ const Dashboard = () => {
       console.error('Logout failed:', error);
       // Even if logout fails, clear local state and redirect
       navigate('/login');
+    }
+  };
+
+  const handleEditProfile = (mode) => {
+    setEditMode(mode);
+    setShowEditModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowEditModal(false);
+  };
+
+  const refetchUserData = async () => {
+    try {
+      const userData = await apiService.getCurrentUser();
+      setUser(userData);
+      
+      // Refetch skills if we're in skills mode
+      if (editMode === 'skills') {
+        try {
+          const skillsResponse = await apiService.getUserSkills();
+          setUserSkills(skillsResponse.skills || []);
+        } catch (skillsError) {
+          console.error('Failed to refetch user skills:', skillsError);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refetch user data:', error);
     }
   };
 
@@ -122,8 +162,16 @@ const Dashboard = () => {
                       <div className="w-8 h-8 bg-cyan-400 rounded mr-4 animate-pulse"></div>
                       USER PROFILE MATRIX
                     </h2>
-                    <div className="text-cyan-400 font-mono text-sm">
-                      ID: {user.email?.split('@')[0]?.toUpperCase() || 'UNKNOWN'}
+                    <div className="flex items-center space-x-4">
+                      <div className="text-cyan-400 font-mono text-sm">
+                        ID: {user.email?.split('@')[0]?.toUpperCase() || 'UNKNOWN'}
+                      </div>
+                      <button
+                        onClick={() => handleEditProfile('profile')}
+                        className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 hover:text-cyan-300 border border-cyan-500/30 hover:border-cyan-400/50 rounded-lg font-mono text-xs transition-all duration-300"
+                      >
+                        ⚙ EDIT
+                      </button>
                     </div>
                   </div>
 
@@ -141,6 +189,33 @@ const Dashboard = () => {
                             <label className="block text-gray-400 text-xs font-mono mb-1">CONTACT_CHANNEL</label>
                             <p className="text-cyan-300 font-mono text-sm">{user.email}</p>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Skills Matrix */}
+                      <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-cyan-400 font-mono text-sm tracking-wider">SKILLS_MATRIX</h3>
+                          <button
+                            onClick={() => handleEditProfile('skills')}
+                            className="px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 hover:text-cyan-300 border border-cyan-500/30 hover:border-cyan-400/50 rounded font-mono text-xs transition-all duration-300"
+                          >
+                            ⚙
+                          </button>
+                        </div>
+                        <div className="space-y-3 max-h-48 overflow-y-auto">
+                          {userSkills.length > 0 ? (
+                            userSkills.map((skillData, index) => (
+                              <div key={index} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600">
+                                <span className="text-white font-mono text-xs">{skillData.skill}</span>
+                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 font-mono text-xs text-center py-4">
+                              NO_SKILLS_DETECTED
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -294,6 +369,363 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <EditProfileModal
+          user={user}
+          userSkills={userSkills}
+          editMode={editMode}
+          setEditMode={setEditMode}
+          onClose={handleCloseModal}
+          onSuccess={refetchUserData}
+        />
+      )}
+    </div>
+  );
+};
+
+// Edit Profile Modal Component
+const EditProfileModal = ({ user, userSkills, editMode, setEditMode, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    linkedin_url: user?.linkedin_url || '',
+    github_url: user?.github_url || '',
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
+    new_skill: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError('');
+    setSuccess('');
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      await apiService.updateProfile({
+        name: formData.name,
+        linkedin_url: formData.linkedin_url,
+        github_url: formData.github_url
+      });
+      
+      setSuccess('Profile updated successfully!');
+      setTimeout(() => {
+        onSuccess();
+        onClose();
+      }, 1500);
+    } catch (error) {
+      setError(error.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    if (formData.new_password !== formData.confirm_password) {
+      setError('New passwords do not match');
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      await apiService.updatePassword({
+        current_password: formData.current_password,
+        new_password: formData.new_password
+      });
+      
+      setSuccess('Password updated successfully!');
+      setTimeout(() => {
+        onSuccess();
+        onClose();
+      }, 1500);
+    } catch (error) {
+      setError(error.message || 'Failed to update password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddSkill = async (e) => {
+    e.preventDefault();
+    if (!formData.new_skill.trim()) return;
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      await apiService.addSkill({ skill: formData.new_skill.trim() });
+      setFormData({ ...formData, new_skill: '' });
+      setSuccess('Skill added successfully!');
+      setTimeout(() => {
+        onSuccess();
+      }, 1000);
+    } catch (error) {
+      setError(error.message || 'Failed to add skill');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveSkill = async (skill) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      await apiService.removeSkill({ skill });
+      setSuccess('Skill removed successfully!');
+      setTimeout(() => {
+        onSuccess();
+      }, 1000);
+    } catch (error) {
+      setError(error.message || 'Failed to remove skill');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderProfileForm = () => (
+    <form onSubmit={handleProfileUpdate} className="space-y-4">
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">NAME</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">LINKEDIN URL</label>
+        <input
+          type="url"
+          name="linkedin_url"
+          value={formData.linkedin_url}
+          onChange={handleInputChange}
+          placeholder="https://linkedin.com/in/username"
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">GITHUB URL</label>
+        <input
+          type="url"
+          name="github_url"
+          value={formData.github_url}
+          onChange={handleInputChange}
+          placeholder="https://github.com/username"
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold rounded-lg transition-all duration-300"
+      >
+        {loading ? 'UPDATING...' : 'UPDATE PROFILE'}
+      </button>
+    </form>
+  );
+
+  const renderPasswordForm = () => (
+    <form onSubmit={handlePasswordUpdate} className="space-y-4">
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">CURRENT PASSWORD</label>
+        <input
+          type="password"
+          name="current_password"
+          value={formData.current_password}
+          onChange={handleInputChange}
+          required
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">NEW PASSWORD</label>
+        <input
+          type="password"
+          name="new_password"
+          value={formData.new_password}
+          onChange={handleInputChange}
+          required
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <div>
+        <label className="block text-cyan-400 font-mono text-xs mb-2">CONFIRM NEW PASSWORD</label>
+        <input
+          type="password"
+          name="confirm_password"
+          value={formData.confirm_password}
+          onChange={handleInputChange}
+          required
+          className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+      </div>
+      
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold rounded-lg transition-all duration-300"
+      >
+        {loading ? 'UPDATING...' : 'UPDATE PASSWORD'}
+      </button>
+    </form>
+  );
+
+  const renderSkillsForm = () => (
+    <div className="space-y-4">
+      <form onSubmit={handleAddSkill} className="flex space-x-2">
+        <input
+          type="text"
+          name="new_skill"
+          value={formData.new_skill}
+          onChange={handleInputChange}
+          placeholder="Enter new skill..."
+          className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={loading || !formData.new_skill.trim()}
+          className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold rounded-lg transition-all duration-300"
+        >
+          ADD
+        </button>
+      </form>
+      
+      <div className="space-y-2 max-h-64 overflow-y-auto">
+        <h4 className="text-cyan-400 font-mono text-xs tracking-wider mb-2">CURRENT SKILLS</h4>
+        {userSkills.length > 0 ? (
+          userSkills.map((skillData, index) => (
+            <div key={index} className="flex justify-between items-center p-3 bg-gray-800/50 rounded border border-gray-600">
+              <span className="text-white font-mono text-sm">{skillData.skill}</span>
+              <button
+                onClick={() => handleRemoveSkill(skillData.skill)}
+                disabled={loading}
+                className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/50 rounded font-mono text-xs transition-all duration-300 disabled:opacity-50"
+              >
+                REMOVE
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="text-gray-500 font-mono text-xs text-center py-8">
+            NO SKILLS FOUND
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const getModalTitle = () => {
+    switch (editMode) {
+      case 'profile': return 'EDIT PROFILE';
+      case 'password': return 'CHANGE PASSWORD';
+      case 'skills': return 'MANAGE SKILLS';
+      default: return 'EDIT';
+    }
+  };
+
+  const getModalContent = () => {
+    switch (editMode) {
+      case 'profile': return renderProfileForm();
+      case 'password': return renderPasswordForm();
+      case 'skills': return renderSkillsForm();
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="relative bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-cyan-500/30 w-full max-w-md max-h-[90vh] overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400"></div>
+        
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white font-orbitron flex items-center">
+              <div className="w-6 h-6 bg-cyan-400 rounded mr-3 animate-pulse"></div>
+              {getModalTitle()}
+            </h3>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded-lg flex items-center justify-center transition-all duration-300"
+            >
+              ✕
+            </button>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 font-mono text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+              <p className="text-green-400 font-mono text-sm">{success}</p>
+            </div>
+          )}
+
+          <div className="max-h-96 overflow-y-auto">
+            {getModalContent()}
+          </div>
+
+          <div className="flex space-x-2 mt-6">
+            <button
+              onClick={() => setEditMode('profile')}
+              className={`flex-1 py-2 px-4 rounded-lg font-mono text-xs transition-all duration-300 ${
+                editMode === 'profile' 
+                  ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-400/50' 
+                  : 'bg-gray-700/50 text-gray-400 border border-gray-600 hover:border-cyan-400/30'
+              }`}
+            >
+              PROFILE
+            </button>
+            <button
+              onClick={() => setEditMode('password')}
+              className={`flex-1 py-2 px-4 rounded-lg font-mono text-xs transition-all duration-300 ${
+                editMode === 'password' 
+                  ? 'bg-purple-500/30 text-purple-300 border border-purple-400/50' 
+                  : 'bg-gray-700/50 text-gray-400 border border-gray-600 hover:border-purple-400/30'
+              }`}
+            >
+              PASSWORD
+            </button>
+            <button
+              onClick={() => setEditMode('skills')}
+              className={`flex-1 py-2 px-4 rounded-lg font-mono text-xs transition-all duration-300 ${
+                editMode === 'skills' 
+                  ? 'bg-green-500/30 text-green-300 border border-green-400/50' 
+                  : 'bg-gray-700/50 text-gray-400 border border-gray-600 hover:border-green-400/30'
+              }`}
+            >
+              SKILLS
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
