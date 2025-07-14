@@ -21,6 +21,8 @@ const Interview = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
+  const [typewriterText, setTypewriterText] = useState('');
+  const [isTypewriterActive, setIsTypewriterActive] = useState(false);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -52,10 +54,30 @@ const Interview = () => {
   // Auto scroll to bottom of chat
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, typewriterText]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Typewriter effect function
+  const typewriterEffect = (text, onComplete) => {
+    setTypewriterText('');
+    setIsTypewriterActive(true);
+    let index = 0;
+    let currentText = '';
+    
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        currentText += text.charAt(index);
+        setTypewriterText(currentText);
+        index++;
+      } else {
+        clearInterval(timer);
+        setIsTypewriterActive(false);
+        onComplete();
+      }
+    }, 15); // Adjust speed here (lower = faster)
   };
 
   const handleSendMessage = async () => {
@@ -78,27 +100,39 @@ const Interview = () => {
       
       // Simulated response for now
       setTimeout(() => {
-        const responseMessage = {
-          id: messages.length + 2,
-          role: 'assistant',
-          content: getSimulatedResponse(inputMessage),
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, responseMessage]);
+        const responseText = getSimulatedResponse(inputMessage);
         setIsTyping(false);
+        
+        // Start typewriter effect
+        typewriterEffect(responseText, () => {
+          const responseMessage = {
+            id: messages.length + 2,
+            role: 'assistant',
+            content: responseText,
+            timestamp: new Date(),
+          };
+          setMessages(prev => [...prev, responseMessage]);
+          setTypewriterText('');
+        });
+        
       }, 1500);
       
     } catch (error) {
       console.error('Failed to send message:', error);
       setIsTyping(false);
       
-      const errorMessage = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: "I'm sorry, there was an error processing your request. Please try again later.",
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      const errorText = "I'm sorry, there was an error processing your request. Please try again later.";
+      
+      typewriterEffect(errorText, () => {
+        const errorMessage = {
+          id: messages.length + 2,
+          role: 'assistant',
+          content: errorText,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setTypewriterText('');
+      });
     }
   };
 
@@ -136,6 +170,8 @@ const Interview = () => {
       },
     ]);
     setCurrentInterview(null);
+    setTypewriterText('');
+    setIsTypewriterActive(false);
   };
 
   if (loading) {
@@ -254,7 +290,26 @@ const Interview = () => {
               </div>
             </div>
           ))}
-          {isTyping && (
+          
+          {/* Typewriter effect message */}
+          {isTypewriterActive && (
+            <div className="message assistant">
+              <div className="message-avatar">
+                <img src={icon} alt="Assistant" className="assistant-avatar" />
+              </div>
+              <div className="message-content">
+                <div className="message-header">
+                  <span className="message-sender">AptWise</span>
+                </div>
+                <div className="message-text">
+                  {typewriterText}
+                  <span className="typewriter-cursor">|</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {isTyping && !isTypewriterActive && (
             <div className="message assistant typing">
               <div className="message-avatar">
                 <img src={icon} alt="Assistant" className="assistant-avatar" />
