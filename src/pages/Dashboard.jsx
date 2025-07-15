@@ -364,18 +364,18 @@ const Dashboard = () => {
               <div className="p-8 bg-[#1A1A1A] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]">
                 <div className="bg-[#1A1A1A]/40 p-6 rounded-lg border border-[#00F0FF]/10 shadow-[0_0_10px_rgba(0,240,255,0.1)] mb-6">
                   <p className="text-[#FFFFFF] text-sm leading-relaxed">
-                    Sharpen your skills with our comprehensive question database covering various technical topics.
+                    Create custom interview presets with your skills and practice with our comprehensive question database covering various technical topics.
                   </p>
                 </div>
                 
                 <button 
-                  onClick={() => navigate('/interview')}
+                  onClick={() => navigate('/interview-dashboard')}
                   className="w-full py-4 bg-[#00F0FF] hover:bg-[#00F0FF] text-[#0D0D0D] font-bold rounded-lg transition-all duration-300 hover:transform hover:-translate-y-1 flex items-center justify-center space-x-3 text-lg"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1M7 7h.01M17 7h.01M7 17h.01M17 17h.01" />
                   </svg>
-                  <span className="font-['Orbitron']">LAUNCH MOCK INTERVIEW</span>
+                  <span className="font-['Orbitron']">LAUNCH INTERVIEW PREP</span>
                 </button>
               </div>
             </div>

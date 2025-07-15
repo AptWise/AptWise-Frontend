@@ -174,6 +174,26 @@ class ApiService {
       body: JSON.stringify({ code, state }),
     });
   }
+
+  // Interview presets endpoints
+  async getUserInterviewPresets() {
+    return this.request('/interview/presets', {
+      method: 'GET',
+    });
+  }
+
+  async createInterviewPreset(presetData) {
+    return this.request('/interview/presets', {
+      method: 'POST',
+      body: JSON.stringify(presetData),
+    });
+  }
+
+  async deleteInterviewPreset(presetId) {
+    return this.request(`/interview/presets/${presetId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export default new ApiService();

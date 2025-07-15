@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import icon from '../assets/icon.svg';
 import './Interview.css';
 import Button from '../components/Button';
@@ -7,11 +7,53 @@ import apiService from '../services/api';
 
 const Interview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get interview data from navigation state or localStorage
+  const getInterviewData = () => {
+    const stateData = location.state?.interviewData;
+    if (stateData) return stateData;
+    
+    const localStorageData = localStorage.getItem('currentInterviewData');
+    if (localStorageData) {
+      try {
+        return JSON.parse(localStorageData);
+      } catch (error) {
+        console.error('Error parsing interview data from localStorage:', error);
+      }
+    }
+    return null;
+  };
+
+  const interviewData = getInterviewData();
+  
+  // Create personalized welcome message
+  const createWelcomeMessage = () => {
+    if (!interviewData) {
+      return "Hello! I'm your interview preparation assistant. What position are you preparing for today?";
+    }
+    
+    const { userName, company, role, skills } = interviewData;
+    let message = `Hi ${userName}! Today we are here for the practice of ${role || 'a position'}`;
+    
+    if (company) {
+      message += ` at ${company}`;
+    }
+    
+    if (skills && skills.length > 0) {
+      const skillsList = skills.join(', ');
+      message += `. The skills that will be covered in the interview are: ${skillsList}`;
+    }
+    
+    message += ". Let's begin your interview preparation!";
+    return message;
+  };
+
   const [messages, setMessages] = useState([
     {
       id: 1,
       role: 'assistant',
-      content: "Hello! I'm your interview preparation assistant. What position are you preparing for today?",
+      content: createWelcomeMessage(),
       timestamp: new Date(),
     },
   ]);
