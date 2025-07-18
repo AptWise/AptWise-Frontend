@@ -73,55 +73,55 @@ const Interview = () => {
   const chatContainerRef = useRef(null);
   
   // Generate initial AI question when interview starts
-  const generateInitialAIQuestion = async () => {
-    if (!interviewData || !interviewData.skills || hasGeneratedInitialQuestionRef.current || isGeneratingQuestionRef.current) return;
+  // const generateInitialAIQuestion = async () => {
+  //   if (!interviewData || !interviewData.skills || hasGeneratedInitialQuestionRef.current || isGeneratingQuestionRef.current) return;
     
-    hasGeneratedInitialQuestionRef.current = true; // Set flag immediately to prevent multiple calls
-    isGeneratingQuestionRef.current = true;
-    setIsTyping(true); // Show typing indicator for initial question
+  //   hasGeneratedInitialQuestionRef.current = true; // Set flag immediately to prevent multiple calls
+  //   isGeneratingQuestionRef.current = true;
+  //   setIsTyping(true); // Show typing indicator for initial question
     
-    try {
-      const requestData = {
-        user_details: {
-          userName: interviewData.userName || user?.name || 'User',
-          company: interviewData.company || 'Company',
-          role: interviewData.role || 'Position'
-        },
-        skills: interviewData.skills || [],
-        conversation_history: []
-      };
+  //   try {
+  //     const requestData = {
+  //       user_details: {
+  //         userName: interviewData.userName || user?.name || 'User',
+  //         company: interviewData.company || 'Company',
+  //         role: interviewData.role || 'Position'
+  //       },
+  //       skills: interviewData.skills || [],
+  //       conversation_history: []
+  //     };
       
-      const response = await apiService.generateInterviewQuestion(requestData);
+  //     const response = await apiService.generateInterviewQuestion(requestData);
       
-      if (response.success) {
-        // Stop the typing indicator and start typewriter effect
-        setIsTyping(false);
+  //     if (response.success) {
+  //       // Stop the typing indicator and start typewriter effect
+  //       setIsTyping(false);
         
-        // Store search context for next question
-        if (response.search_context) {
-          setSearchContext(response.search_context);
-        }
+  //       // Store search context for next question
+  //       if (response.search_context) {
+  //         setSearchContext(response.search_context);
+  //       }
         
-        typewriterEffect(response.question, () => {
-          // Add the AI question after the welcome message
-          const aiQuestionMessage = {
-            id: Date.now(), // Use timestamp for unique ID
-            role: 'assistant',
-            content: response.question,
-            timestamp: new Date(),
-          };
+  //       typewriterEffect(response.question, () => {
+  //         // Add the AI question after the welcome message
+  //         const aiQuestionMessage = {
+  //           id: Date.now(), // Use timestamp for unique ID
+  //           role: 'assistant',
+  //           content: response.question,
+  //           timestamp: new Date(),
+  //         };
           
-          setMessages(prev => [...prev, aiQuestionMessage]);
-        });
-      }
-    } catch (error) {
-      console.error('Error generating initial AI question:', error);
-      setIsTyping(false); // Stop typing indicator on error
-      hasGeneratedInitialQuestionRef.current = false; // Reset flag on error so it can be retried
-    } finally {
-      isGeneratingQuestionRef.current = false;
-    }
-  };
+  //         setMessages(prev => [...prev, aiQuestionMessage]);
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error generating initial AI question:', error);
+  //     setIsTyping(false); // Stop typing indicator on error
+  //     hasGeneratedInitialQuestionRef.current = false; // Reset flag on error so it can be retried
+  //   } finally {
+  //     isGeneratingQuestionRef.current = false;
+  //   }
+  // };
 
   // NOTE: Removed automatic initial question generation - questions will only be generated after user sends a message
   // useEffect(() => {
@@ -298,21 +298,21 @@ const Interview = () => {
   };
 
   // Temporary function to simulate responses
-  const getSimulatedResponse = (message) => {
-    const lowerMessage = message.toLowerCase();
+  // const getSimulatedResponse = (message) => {
+  //   const lowerMessage = message.toLowerCase();
     
-    if (lowerMessage.includes('react') || lowerMessage.includes('frontend')) {
-      return "For React positions, be prepared to discuss component lifecycle, hooks, state management, and performance optimization. Could you tell me about a challenging React project you've worked on?";
-    } else if (lowerMessage.includes('python') || lowerMessage.includes('backend')) {
-      return "Backend roles often require deep knowledge of API design, database optimization, and system architecture. Can you walk me through how you'd design a scalable backend service?";
-    } else if (lowerMessage.includes('experience') || lowerMessage.includes('project')) {
-      return "That's great experience! Now, let me ask you a common interview question: Can you describe a challenging problem you faced in a recent project and how you solved it?";
-    } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-      return "Hi there! What type of position are you interviewing for? I can help you prepare with role-specific questions and feedback.";
-    } else {
-      return "That's interesting! Let's dig deeper into this topic with a common interview question: How do you approach learning new technologies or frameworks when they're required for a project?";
-    }
-  };
+  //   if (lowerMessage.includes('react') || lowerMessage.includes('frontend')) {
+  //     return "For React positions, be prepared to discuss component lifecycle, hooks, state management, and performance optimization. Could you tell me about a challenging React project you've worked on?";
+  //   } else if (lowerMessage.includes('python') || lowerMessage.includes('backend')) {
+  //     return "Backend roles often require deep knowledge of API design, database optimization, and system architecture. Can you walk me through how you'd design a scalable backend service?";
+  //   } else if (lowerMessage.includes('experience') || lowerMessage.includes('project')) {
+  //     return "That's great experience! Now, let me ask you a common interview question: Can you describe a challenging problem you faced in a recent project and how you solved it?";
+  //   } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+  //     return "Hi there! What type of position are you interviewing for? I can help you prepare with role-specific questions and feedback.";
+  //   } else {
+  //     return "That's interesting! Let's dig deeper into this topic with a common interview question: How do you approach learning new technologies or frameworks when they're required for a project?";
+  //   }
+  // };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
