@@ -65,10 +65,77 @@ const Interview = () => {
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [typewriterText, setTypewriterText] = useState('');
   const [isTypewriterActive, setIsTypewriterActive] = useState(false);
+  const [searchContext, setSearchContext] = useState(null); // Store search context for next question
+  const hasGeneratedInitialQuestionRef = useRef(false);
+  const isGeneratingQuestionRef = useRef(false);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   
+  // Generate initial AI question when interview starts
+  // const generateInitialAIQuestion = async () => {
+  //   if (!interviewData || !interviewData.skills || hasGeneratedInitialQuestionRef.current || isGeneratingQuestionRef.current) return;
+    
+  //   hasGeneratedInitialQuestionRef.current = true; // Set flag immediately to prevent multiple calls
+  //   isGeneratingQuestionRef.current = true;
+  //   setIsTyping(true); // Show typing indicator for initial question
+    
+  //   try {
+  //     const requestData = {
+  //       user_details: {
+  //         userName: interviewData.userName || user?.name || 'User',
+  //         company: interviewData.company || 'Company',
+  //         role: interviewData.role || 'Position'
+  //       },
+  //       skills: interviewData.skills || [],
+  //       conversation_history: []
+  //     };
+      
+  //     const response = await apiService.generateInterviewQuestion(requestData);
+      
+  //     if (response.success) {
+  //       // Stop the typing indicator and start typewriter effect
+  //       setIsTyping(false);
+        
+  //       // Store search context for next question
+  //       if (response.search_context) {
+  //         setSearchContext(response.search_context);
+  //       }
+        
+  //       typewriterEffect(response.question, () => {
+  //         // Add the AI question after the welcome message
+  //         const aiQuestionMessage = {
+  //           id: Date.now(), // Use timestamp for unique ID
+  //           role: 'assistant',
+  //           content: response.question,
+  //           timestamp: new Date(),
+  //         };
+          
+  //         setMessages(prev => [...prev, aiQuestionMessage]);
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error generating initial AI question:', error);
+  //     setIsTyping(false); // Stop typing indicator on error
+  //     hasGeneratedInitialQuestionRef.current = false; // Reset flag on error so it can be retried
+  //   } finally {
+  //     isGeneratingQuestionRef.current = false;
+  //   }
+  // };
+
+  // NOTE: Removed automatic initial question generation - questions will only be generated after user sends a message
+  // useEffect(() => {
+  //   if (user && interviewData && !hasGeneratedInitialQuestionRef.current) {
+  //     // Add a small delay to allow the welcome message to be displayed first
+  //     const timer = setTimeout(() => {
+  //       generateInitialAIQuestion();
+  //     }, 2000);
+  //     
+  //     // Cleanup timeout on component unmount
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [user, interviewData]);
+
   // Toggle sidebar collapse states
   const toggleLeftSidebar = () => {
     setLeftSidebarCollapsed(!leftSidebarCollapsed);
@@ -119,81 +186,133 @@ const Interview = () => {
         setIsTypewriterActive(false);
         onComplete();
       }
-    }, 15); // Adjust speed here (lower = faster)
+    }, 5); // Adjust speed here (lower = faster)
   };
 
   const handleSendMessage = async () => {
-    if (inputMessage.trim() === '') return;
+    if (inputMessage.trim() === '' || isTyping) return; // Prevent if empty or typing
+    
+    console.log('🚀 handleSendMessage called with:', inputMessage);
     
     const newUserMessage = {
-      id: messages.length + 1,
+      id: Date.now(), // Use timestamp for unique ID
       role: 'user',
       content: inputMessage,
       timestamp: new Date(),
     };
     
+    console.log('💬 Adding user message:', newUserMessage);
+    
+    // Add user message to chat immediately
     setMessages(prev => [...prev, newUserMessage]);
     setInputMessage('');
+    
+    // Check if already generating after we've added the user message
+    if (isGeneratingQuestionRef.current) {
+      console.log('⚠️ Already generating question, skipping API call');
+      return;
+    }
+    
+    isGeneratingQuestionRef.current = true;
     setIsTyping(true);
     
+    console.log('🤖 Starting AI question generation...');
+    
     try {
-      // Here you would send the message to your backend API
-      // const response = await apiService.sendInterviewMessage(currentInterview?.id, inputMessage);
+      // Prepare the conversation history for the AI service
+      const conversationHistory = [...messages, newUserMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp.toISOString()
+      }));
       
-      // Simulated response for now
-      setTimeout(() => {
-        const responseText = getSimulatedResponse(inputMessage);
+      // Prepare the request data
+      const requestData = {
+        user_details: {
+          userName: interviewData?.userName || user?.name || 'User',
+          company: interviewData?.company || 'Company',
+          role: interviewData?.role || 'Position'
+        },
+        skills: interviewData?.skills || [],
+        conversation_history: conversationHistory,
+        search_context: searchContext // Include search context from previous response
+      };
+      
+      // Call the AI service
+      console.log('📡 Calling AI service with:', requestData);
+      const response = await apiService.generateInterviewQuestion(requestData);
+      console.log('✅ AI service response:', response);
+      
+      if (response.success) {
+        // Stop the typing indicator and start typewriter effect
         setIsTyping(false);
         
-        // Start typewriter effect
-        typewriterEffect(responseText, () => {
+        // Store search context for next question
+        if (response.search_context) {
+          setSearchContext(response.search_context);
+          console.log('💡 Stored search context for next question:', response.search_context);
+        }
+        
+        typewriterEffect(response.question, () => {
           const responseMessage = {
-            id: messages.length + 2,
+            id: Date.now() + 1, // Use timestamp for unique ID
             role: 'assistant',
-            content: responseText,
+            content: response.question,
             timestamp: new Date(),
           };
+          
+          console.log('🤖 Adding AI response message:', responseMessage);
           setMessages(prev => [...prev, responseMessage]);
-          setTypewriterText('');
         });
-        
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      setIsTyping(false);
-      
-      const errorText = "I'm sorry, there was an error processing your request. Please try again later.";
-      
-      typewriterEffect(errorText, () => {
+      } else {
+        console.log('❌ AI service returned error:', response);
+        // Handle error response
+        setIsTyping(false);
         const errorMessage = {
-          id: messages.length + 2,
+          id: Date.now() + 1, // Use timestamp for unique ID
           role: 'assistant',
-          content: errorText,
+          content: 'I apologize, but I encountered an issue generating your next question. Could you please try again?',
           timestamp: new Date(),
         };
+        
         setMessages(prev => [...prev, errorMessage]);
-        setTypewriterText('');
-      });
+      }
+      
+    } catch (error) {
+      console.error('💥 Error sending message:', error);
+      setIsTyping(false);
+      
+      // Show error message to user
+      const errorMessage = {
+        id: Date.now() + 1, // Use timestamp for unique ID
+        role: 'assistant',
+        content: 'I apologize, but I encountered a technical issue. Could you please try again?',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      console.log('🏁 Setting isGeneratingQuestionRef to false');
+      isGeneratingQuestionRef.current = false;
     }
   };
 
   // Temporary function to simulate responses
-  const getSimulatedResponse = (message) => {
-    const lowerMessage = message.toLowerCase();
+  // const getSimulatedResponse = (message) => {
+  //   const lowerMessage = message.toLowerCase();
     
-    if (lowerMessage.includes('react') || lowerMessage.includes('frontend')) {
-      return "For React positions, be prepared to discuss component lifecycle, hooks, state management, and performance optimization. Could you tell me about a challenging React project you've worked on?";
-    } else if (lowerMessage.includes('python') || lowerMessage.includes('backend')) {
-      return "Backend roles often require deep knowledge of API design, database optimization, and system architecture. Can you walk me through how you'd design a scalable backend service?";
-    } else if (lowerMessage.includes('experience') || lowerMessage.includes('project')) {
-      return "That's great experience! Now, let me ask you a common interview question: Can you describe a challenging problem you faced in a recent project and how you solved it?";
-    } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-      return "Hi there! What type of position are you interviewing for? I can help you prepare with role-specific questions and feedback.";
-    } else {
-      return "That's interesting! Let's dig deeper into this topic with a common interview question: How do you approach learning new technologies or frameworks when they're required for a project?";
-    }
-  };
+  //   if (lowerMessage.includes('react') || lowerMessage.includes('frontend')) {
+  //     return "For React positions, be prepared to discuss component lifecycle, hooks, state management, and performance optimization. Could you tell me about a challenging React project you've worked on?";
+  //   } else if (lowerMessage.includes('python') || lowerMessage.includes('backend')) {
+  //     return "Backend roles often require deep knowledge of API design, database optimization, and system architecture. Can you walk me through how you'd design a scalable backend service?";
+  //   } else if (lowerMessage.includes('experience') || lowerMessage.includes('project')) {
+  //     return "That's great experience! Now, let me ask you a common interview question: Can you describe a challenging problem you faced in a recent project and how you solved it?";
+  //   } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+  //     return "Hi there! What type of position are you interviewing for? I can help you prepare with role-specific questions and feedback.";
+  //   } else {
+  //     return "That's interesting! Let's dig deeper into this topic with a common interview question: How do you approach learning new technologies or frameworks when they're required for a project?";
+  //   }
+  // };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -214,6 +333,7 @@ const Interview = () => {
     setCurrentInterview(null);
     setTypewriterText('');
     setIsTypewriterActive(false);
+    hasGeneratedInitialQuestionRef.current = false; // Reset the flag for new interview
   };
 
   if (loading) {
@@ -357,10 +477,15 @@ const Interview = () => {
                 <img src={icon} alt="Assistant" className="assistant-avatar" />
               </div>
               <div className="message-content">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                <div className="message-header">
+                  <span className="message-sender">AptWise</span>
+                </div>
+                <div className="message-text">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
               </div>
             </div>
