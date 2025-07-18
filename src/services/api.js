@@ -194,6 +194,20 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  async generateInterviewQuestion(requestData) {
+    return this.request('/interview/generate-question', {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+  }
+
+  async generateInterviewPreset(requestData) {
+    return this.request('/interview/generate-preset', {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+  }
 }
 
 export default new ApiService();

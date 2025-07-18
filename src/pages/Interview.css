@@ -414,6 +414,10 @@
   scroll-behavior: smooth;
 }
 
+.interview-messages .message.user {
+  margin-left: 5% !important;
+}
+
 .message {
   display: flex;
   padding: 15px;
@@ -468,6 +472,10 @@
   max-width: calc(100% - 50px);
 }
 
+.message.user .message-content {
+  max-width: calc(100% - 50px) !important;
+}
+
 .message-header {
   display: flex;
   justify-content: space-between;
@@ -502,6 +510,7 @@
   background-color: rgba(26, 26, 26, 0.7);
   align-self: flex-end;
   flex-direction: row-reverse;
+  max-width: 95% !important;
 }
 
 .typing-indicator {
@@ -541,16 +550,21 @@
   border-top: 1px solid rgba(160, 160, 160, 0.1);
   background-color: rgba(13, 13, 13, 0.9);
   backdrop-filter: blur(8px);
+  max-width: 100%;
+  width: 100%;
 }
 
 .interview-input-wrapper {
   position: relative;
   display: flex;
   align-items: flex-end;
+  width: 100%;
+  max-width: 100%;
 }
 
 .interview-input {
   width: 100%;
+  min-width: 100%;
   padding: 15px;
   padding-right: 50px;
   background-color: #1A1A1A;
@@ -563,6 +577,7 @@
   max-height: 150px;
   overflow-y: auto;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .interview-input:focus {
