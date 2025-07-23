@@ -234,6 +234,32 @@ class ApiService {
       method: 'GET',
     });
   }
+
+  // Interview endpoints
+  async saveInterview(interviewData) {
+    return this.request('/auth/interviews', {
+      method: 'POST',
+      body: JSON.stringify(interviewData),
+    });
+  }
+
+  async getUserInterviews() {
+    return this.request('/auth/interviews', {
+      method: 'GET',
+    });
+  }
+
+  async getInterviewById(interviewId) {
+    return this.request(`/auth/interviews/${interviewId}`, {
+      method: 'GET',
+    });
+  }
+
+  async deleteInterview(interviewId) {
+    return this.request(`/auth/interviews/${interviewId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export default new ApiService();
