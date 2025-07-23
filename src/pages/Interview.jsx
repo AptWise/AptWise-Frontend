@@ -381,7 +381,18 @@ const Interview = () => {
       alert('Failed to save interview. Please try again.');
     } finally {
       setIsEndingInterview(false);
-      navigate('/interview-dashboard'); // Redirect to interview dashboard after saving
+      
+      // Navigate to evaluation page with interview data
+      navigate('/evaluation', { 
+        state: { 
+          interviewData: interviewData,
+          conversationHistory: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.timestamp.toISOString()
+          }))
+        } 
+      });
     }
   };
   

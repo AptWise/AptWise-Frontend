@@ -260,6 +260,14 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // Evaluation endpoints
+  async evaluateInterview(evaluationData) {
+    return this.request('/evaluation/evaluate', {
+      method: 'POST',
+      body: JSON.stringify(evaluationData),
+    });
+  }
 }
 
 export default new ApiService();
