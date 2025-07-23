@@ -1311,6 +1311,112 @@ input:checked + .slider:before {
   100% { opacity: 1; }
 }
 
+/* Interview controls */
+.interview-controls {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-top: 1px solid rgba(160, 160, 160, 0.1);
+}
+
+.end-interview-btn, .new-interview-btn {
+  width: 100%;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #00F0FF, #0080FF);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.end-interview-btn:hover, .new-interview-btn:hover {
+  background: linear-gradient(135deg, #00C8D4, #0066CC);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 240, 255, 0.3);
+}
+
+.end-interview-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.new-interview-btn {
+  background: linear-gradient(135deg, #00FF88, #00CC66);
+}
+
+.new-interview-btn:hover {
+  background: linear-gradient(135deg, #00DD77, #00AA55);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+}
+
+/* Delete interview button */
+.delete-interview-btn {
+  background: linear-gradient(135deg, #FF4444, #CC2222);
+  color: #FFFFFF;
+}
+
+.delete-interview-btn:hover {
+  background: linear-gradient(135deg, #FF3333, #BB1111);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+}
+
+.delete-interview-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Interview title styling */
+.interview-title {
+  font-weight: 500;
+  color: #FFFFFF;
+  display: block;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+/* Read-only input container */
+.interview-input-container.readonly {
+  background-color: #1A1A1A;
+  border-top: 1px solid rgba(160, 160, 160, 0.1);
+  padding: 20px;
+}
+
+.readonly-message {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.readonly-message p {
+  margin: 0;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(160, 160, 160, 0.1);
+}
+
+/* Previous interviews loading state */
+.history-items .no-history-message {
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 10px;
+  font-style: italic;
+}
+
 /* Responsive adjustments for the chat history panel */
 @media (max-width: 768px) {
   .chat-history-panel {
