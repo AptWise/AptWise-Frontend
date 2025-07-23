@@ -10,6 +10,7 @@ import LinkedInTest from './pages/LinkedInTest';
 import GitHubTest from './pages/GitHubTest';
 import Interview from './pages/Interview';
 import InterviewDashboard from './pages/InterviewDashboard';
+import Evaluation from './pages/Evaluation';
 
 const App = () => {
   return (
@@ -20,6 +21,8 @@ const App = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/interview-dashboard" element={<InterviewDashboard />} />
       <Route path="/interview" element={<Interview />} />
+      <Route path="/evaluation" element={<Evaluation />} />
+      <Route path="/evaluation/:chatId" element={<Evaluation />} />
       <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
       <Route path="/auth/github/callback" element={<GitHubCallback />} />
       <Route path="/test-linkedin" element={<LinkedInTest />} />

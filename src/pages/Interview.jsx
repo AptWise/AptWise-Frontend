@@ -59,15 +59,19 @@ const Interview = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [currentInterview, setCurrentInterview] = useState(null);
+  const [currentInterview] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [typewriterText, setTypewriterText] = useState('');
   const [isTypewriterActive, setIsTypewriterActive] = useState(false);
   const [searchContext, setSearchContext] = useState(null); // Store search context for next question
-  const hasGeneratedInitialQuestionRef = useRef(false);
+  const _hasGeneratedInitialQuestionRef = useRef(false);
   const isGeneratingQuestionRef = useRef(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [chatTranscript, setChatTranscript] = useState(null);
+  const [isEndingInterview, setIsEndingInterview] = useState(false);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -159,6 +163,22 @@ const Interview = () => {
 
     fetchUserData();
   }, [navigate]);
+  
+  // Fetch chat history
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const history = await apiService.getChatHistory();
+        setChatHistory(history.chats || []);
+      } catch (error) {
+        console.error('Failed to fetch chat history:', error);
+      }
+    };
+    
+    if (user) {
+      fetchChatHistory();
+    }
+  }, [user]);
 
   // Auto scroll to bottom of chat
   useEffect(() => {
@@ -320,20 +340,50 @@ const Interview = () => {
       handleSendMessage();
     }
   };
-
-  const startNewInterview = () => {
-    setMessages([
-      {
-        id: 1,
-        role: 'assistant',
-        content: "Hello! I'm your interview preparation assistant. What position are you preparing for today?",
-        timestamp: new Date(),
-      },
-    ]);
-    setCurrentInterview(null);
-    setTypewriterText('');
-    setIsTypewriterActive(false);
-    hasGeneratedInitialQuestionRef.current = false; // Reset the flag for new interview
+  
+  // Load chat transcript
+  const loadChatTranscript = async (chatId) => {
+    try {
+      setLoading(true);
+      const transcript = await apiService.getChatTranscript(chatId);
+      setChatTranscript(transcript);
+      setSelectedChat(chatId);
+    } catch (error) {
+      console.error('Failed to load chat transcript:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Handle ending the interview
+  const handleEndInterview = async () => {
+    if (isEndingInterview) return; // Prevent multiple submissions
+    
+    setIsEndingInterview(true);
+    
+    try {
+      // Prepare the conversation data
+      const conversationData = {
+        messages: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString()
+        })),
+        interviewData: interviewData || {}
+      };
+      
+      const response = await apiService.endInterview(conversationData);
+      
+      if (response.success) {
+        // Navigate to the evaluation page with the chat ID
+        navigate('/evaluation', { state: { chatId: response.chatId }});
+      } else {
+        console.error('Error ending interview:', response.error);
+      }
+    } catch (error) {
+      console.error('Failed to end interview:', error);
+      setIsEndingInterview(false); // Reset state to allow retrying
+    }
   };
 
   if (loading) {
@@ -361,7 +411,7 @@ const Interview = () => {
           <span className="sidebar-title">AptWise</span>
         </div>
         
-        <button className="new-chat-btn" onClick={startNewInterview}>
+        <button className="new-chat-btn" onClick={() => navigate('/interview-dashboard')}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
             <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
             <path d="M4 5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8zm0 2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5z"/>
@@ -380,19 +430,34 @@ const Interview = () => {
         <div className="interview-history">
           <h3>Recent Interviews</h3>
           <div className="history-items">
-            <div className="history-item">
-              <span>Frontend Developer Interview</span>
-              <span className="history-date">July 10</span>
-            </div>
-            <div className="history-item">
-              <span>React Technical Interview</span>
-              <span className="history-date">July 8</span>
-            </div>
-            <div className="history-item">
-              <span>System Design Practice</span>
-              <span className="history-date">July 5</span>
-            </div>
+            {chatHistory.length === 0 ? (
+              <div className="no-history-message">No interview history available</div>
+            ) : (
+              chatHistory.slice(0, 5).map((chat) => (
+                <div 
+                  key={chat.id} 
+                  className={`history-item ${selectedChat === chat.id ? 'selected' : ''}`}
+                  onClick={() => loadChatTranscript(chat.id)}
+                >
+                  <span>{chat.title || `Interview on ${new Date(chat.createdAt).toLocaleDateString()}`}</span>
+                  <span className="history-date">
+                    {new Date(chat.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
+          {selectedChat && chatTranscript && (
+            <div className="transcript-preview">
+              <h4>Selected Interview</h4>
+              <button 
+                className="view-evaluation-btn" 
+                onClick={() => navigate(`/evaluation/${selectedChat}`)}
+              >
+                View Evaluation
+              </button>
+            </div>
+          )}
         </div>
         
         <div className="sidebar-footer">
@@ -421,12 +486,16 @@ const Interview = () => {
             <h2>{currentInterview ? currentInterview.title : 'Interview Session'}</h2>
           </div>
           <div className="interview-actions">
-            <button className="action-btn">
+            <button 
+              className="action-btn end-interview-btn" 
+              onClick={handleEndInterview}
+              disabled={isEndingInterview}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                 <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3z"/>
               </svg>
-              End Interview
+              {isEndingInterview ? 'Processing...' : 'End Interview'}
             </button>
           </div>
         </div>
@@ -520,7 +589,7 @@ const Interview = () => {
         </div>
       </div>
       
-      {/* We no longer need a floating button since we have icons in the collapsed sidebar */}
+
     </div>
   );
 };
