@@ -208,6 +208,32 @@ class ApiService {
       body: JSON.stringify(requestData),
     });
   }
+
+  // Interview ending and evaluation endpoints
+  async endInterview(chatData) {
+    return this.request('/api/interview/end', {
+      method: 'POST',
+      body: JSON.stringify(chatData),
+    });
+  }
+
+  async getChatHistory() {
+    return this.request('/api/chats', {
+      method: 'GET',
+    });
+  }
+
+  async getChatTranscript(chatId) {
+    return this.request(`/api/chats/${chatId}`, {
+      method: 'GET',
+    });
+  }
+
+  async getEvaluation(chatId) {
+    return this.request(`/api/evaluation/${chatId}`, {
+      method: 'GET',
+    });
+  }
 }
 
 export default new ApiService();
