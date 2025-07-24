@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import icon from '../assets/icon.svg';
 import './InterviewHistory.css';
 
 const InterviewHistory = () => {
@@ -195,6 +196,13 @@ const InterviewHistory = () => {
               key={message.id}
               className={`message ${message.role}`}
             >
+              <div className="message-avatar">
+                {message.role === 'assistant' ? (
+                  <img src={icon} alt="AptWise" className="assistant-avatar" />
+                ) : (
+                  <div className="user-message-avatar">{_user?.name?.charAt(0) || 'U'}</div>
+                )}
+              </div>
               <div className="message-content">
                 <div className="message-text">{message.content}</div>
                 <div className="message-time">

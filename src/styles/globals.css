@@ -1,0 +1,196 @@
+/* Global CSS Reset and Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap');
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Space Grotesk', 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Component Isolation - Each page should manage its own styles */
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Common scrollbar styles for dark theme components */
+.dark-theme-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dark-theme-scrollbar::-webkit-scrollbar-track {
+  background: #1A1A1A;
+  border-radius: 10px;
+}
+
+.dark-theme-scrollbar::-webkit-scrollbar-thumb {
+  background: #00F0FF;
+  border-radius: 10px;
+}
+
+.dark-theme-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #2b00ff;
+}
+
+/* Common button styles for consistency */
+.btn-primary-theme {
+  background: linear-gradient(135deg, #00F0FF 0%, #2b00ff 100%);
+  color: #0D0D0D;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.btn-primary-theme:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+  filter: brightness(1.1);
+}
+
+.btn-secondary-theme {
+  background: transparent;
+  color: #00F0FF;
+  border: 2px solid #00F0FF;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary-theme:hover {
+  background: rgba(0, 240, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Text glow effect for headings */
+.text-glow {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+/* Common card styles for dark theme */
+.dark-card {
+  background: linear-gradient(135deg, #1A1A1A 0%, #0F0F0F 100%);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.dark-card:hover {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.15);
+}
+
+/* Common modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Common modal styles */
+.modal-content {
+  background: linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%);
+  border: 2px solid rgba(0, 240, 255, 0.2);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 240, 255, 0.2);
+}
+
+/* Utility classes for consistent spacing */
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-5 { margin-bottom: 1.25rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-5 { margin-top: 1.25rem; }
+.mt-6 { margin-top: 1.5rem; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+
+/* Text utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-primary { color: #00F0FF; }
+.text-secondary { color: #A0A0A0; }
+.text-white { color: #FFFFFF; }
+.text-error { color: #FF4444; }
+
+/* Flex utilities */
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.align-center { align-items: center; }
+.align-start { align-items: flex-start; }
+.align-end { align-items: flex-end; }
+
+/* Position utilities */
+.position-relative { position: relative; }
+.position-absolute { position: absolute; }
+.position-fixed { position: fixed; }
+
+/* Width utilities */
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+.h-full { height: 100%; }
+.h-auto { height: auto; }
+.min-h-screen { min-height: 100vh; }
+
+/* Gap utilities */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-5 { gap: 1.25rem; }
+.gap-6 { gap: 1.5rem; }
