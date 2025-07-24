@@ -268,6 +268,25 @@ class ApiService {
       body: JSON.stringify(evaluationData),
     });
   }
+
+  async storeEvaluation(evaluationData) {
+    return this.request('/evaluation/store', {
+      method: 'POST',
+      body: JSON.stringify(evaluationData),
+    });
+  }
+
+  async getEvaluationForInterview(interviewId) {
+    return this.request(`/evaluation/interview/${interviewId}`, {
+      method: 'GET',
+    });
+  }
+
+  async getUserEvaluations() {
+    return this.request('/evaluation/user', {
+      method: 'GET',
+    });
+  }
 }
 
 export default new ApiService();

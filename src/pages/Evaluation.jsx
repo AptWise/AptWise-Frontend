@@ -59,6 +59,10 @@ const Evaluation = () => {
   const startNewInterview = () => {
     navigate('/interview-dashboard');
   };
+
+  const goToHistory = () => {
+    navigate('/interview-history');
+  };
   
   if (loading) {
     return (
@@ -128,6 +132,9 @@ const Evaluation = () => {
         <div className="header-actions">
           <button onClick={startNewInterview} className="btn-primary">
             New Interview
+          </button>
+          <button onClick={goToHistory} className="btn-secondary">
+            History
           </button>
           <button onClick={goToDashboard} className="btn-secondary">
             Dashboard
@@ -302,6 +309,9 @@ const Evaluation = () => {
           <div className="footer-actions">
             <button onClick={startNewInterview} className="btn-primary">
               Start New Interview
+            </button>
+            <button onClick={goToHistory} className="btn-secondary">
+              View History
             </button>
             <button onClick={goToDashboard} className="btn-secondary">
               Return to Dashboard
