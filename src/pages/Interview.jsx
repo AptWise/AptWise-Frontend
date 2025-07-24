@@ -358,29 +358,40 @@ const Interview = () => {
       const title = generateInterviewTitle(conversationText);
       
       // Save the interview
-      await apiService.saveInterview({
+      const savedInterview = await apiService.saveInterview({
         title: title,
         interview_text: conversationText
       });
+      
+      // Generate and store evaluation
+      const evaluationResult = await apiService.evaluateInterview({
+        interview_data: interviewData,
+        conversation_history: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString()
+        }))
+      });
+      
+      if (evaluationResult.success && savedInterview.id) {
+        await apiService.storeEvaluation({
+          interview_id: savedInterview.id,
+          evaluation_data: evaluationResult.evaluation
+        });
+      }
       
       alert('Interview saved successfully!');
       
       // Reload previous interviews to show the new one
       await loadPreviousInterviews();
       
-      // Optionally, reset the current interview
+      // Reset the current interview
       setMessages([{
         id: 1,
         role: 'assistant',
         content: createWelcomeMessage(),
         timestamp: new Date(),
       }]);
-      
-    } catch (error) {
-      console.error('Error saving interview:', error);
-      alert('Failed to save interview. Please try again.');
-    } finally {
-      setIsEndingInterview(false);
       
       // Navigate to evaluation page with interview data
       navigate('/evaluation', { 
@@ -390,9 +401,66 @@ const Interview = () => {
             role: msg.role,
             content: msg.content,
             timestamp: msg.timestamp.toISOString()
-          }))
+          })),
+          evaluationResult: evaluationResult.success ? evaluationResult.evaluation : null
         } 
       });
+      
+    } catch (error) {
+      console.error('Error saving interview:', error);
+      alert('Failed to save interview. Please try again.');
+    } finally {
+      setIsEndingInterview(false);
+    }
+  };
+
+  // End and save interview, then redirect to history page
+  const handleEndAndSaveInterview = async () => {
+    if (messages.length <= 1) {
+      alert('No interview content to save.');
+      return;
+    }
+    
+    try {
+      setIsEndingInterview(true);
+      
+      // Generate a title based on the conversation
+      const conversationText = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+      const title = generateInterviewTitle(conversationText);
+      
+      // Save the interview
+      const savedInterview = await apiService.saveInterview({
+        title: title,
+        interview_text: conversationText
+      });
+      
+      // Generate and store evaluation
+      const evaluationResult = await apiService.evaluateInterview({
+        interview_data: interviewData,
+        conversation_history: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp.toISOString()
+        }))
+      });
+      
+      if (evaluationResult.success && savedInterview.id) {
+        await apiService.storeEvaluation({
+          interview_id: savedInterview.id,
+          evaluation_data: evaluationResult.evaluation
+        });
+      }
+      
+      alert('Interview saved successfully!');
+      
+      // Navigate to interview history page
+      navigate('/interview-history');
+      
+    } catch (error) {
+      console.error('Error saving interview:', error);
+      alert('Failed to save interview. Please try again.');
+    } finally {
+      setIsEndingInterview(false);
     }
   };
   
@@ -533,7 +601,7 @@ const Interview = () => {
             <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
             <path d="M4 5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8zm0 2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5z"/>
           </svg>
-          {!leftSidebarCollapsed && <span className="btn-text">Go to Prep</span>}
+          {!leftSidebarCollapsed && <span className="btn-text">New Interview</span>}
         </button>
         
         <button className="dashboard-btn" onClick={() => navigate('/dashboard')}>
@@ -584,7 +652,7 @@ const Interview = () => {
               messages.length > 1 && (
                 <button 
                   className="end-interview-btn" 
-                  onClick={handleEndInterview}
+                  onClick={handleEndAndSaveInterview}
                   disabled={isEndingInterview}
                 >
                   {isEndingInterview ? 'Saving...' : 'End & Save Interview'}
