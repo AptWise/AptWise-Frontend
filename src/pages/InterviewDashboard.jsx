@@ -520,15 +520,26 @@ const InterviewDashboard = () => {
                 </h1>
                 <p className="text-xl text-[#A0A0A0]">Create and manage your interview preparation sessions</p>
               </div>
-              <button
-                onClick={handleCreatePreset}
-                className="px-8 py-4 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                <span>Create Interview Preset</span>
-              </button>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => navigate('/interview-history')}
+                  className="px-8 py-4 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Past Interview & Evaluation</span>
+                </button>
+                <button
+                  onClick={handleCreatePreset}
+                  className="px-8 py-4 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Create Interview Preset</span>
+                </button>
+              </div>
             </div>
           </div>
 

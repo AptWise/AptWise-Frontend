@@ -413,56 +413,6 @@ const Interview = () => {
       setIsEndingInterview(false);
     }
   };
-
-  // End and save interview, then redirect to history page
-  const handleEndAndSaveInterview = async () => {
-    if (messages.length <= 1) {
-      alert('No interview content to save.');
-      return;
-    }
-    
-    try {
-      setIsEndingInterview(true);
-      
-      // Generate a title based on the conversation
-      const conversationText = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
-      const title = generateInterviewTitle(conversationText);
-      
-      // Save the interview
-      const savedInterview = await apiService.saveInterview({
-        title: title,
-        interview_text: conversationText
-      });
-      
-      // Generate and store evaluation
-      const evaluationResult = await apiService.evaluateInterview({
-        interview_data: interviewData,
-        conversation_history: messages.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.timestamp.toISOString()
-        }))
-      });
-      
-      if (evaluationResult.success && savedInterview.id) {
-        await apiService.storeEvaluation({
-          interview_id: savedInterview.id,
-          evaluation_data: evaluationResult.evaluation
-        });
-      }
-      
-      alert('Interview saved successfully!');
-      
-      // Navigate to interview history page
-      navigate('/interview-history');
-      
-    } catch (error) {
-      console.error('Error saving interview:', error);
-      alert('Failed to save interview. Please try again.');
-    } finally {
-      setIsEndingInterview(false);
-    }
-  };
   
   // Generate a title for the interview based on content
   const generateInterviewTitle = (conversationText) => {
@@ -612,6 +562,14 @@ const Interview = () => {
           {!leftSidebarCollapsed && <span className="btn-text">Dashboard</span>}
         </button>
         
+        <button className="new-chat-btn" onClick={() => navigate('/interview-history')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+            <path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+          </svg>
+          {!leftSidebarCollapsed && <span className="btn-text">Past Interview & Evaluation</span>}
+        </button>
+        
         <div className="interview-history">
           <h3>Previous Interviews</h3>
           <div className="history-items">
@@ -637,7 +595,7 @@ const Interview = () => {
           
           {/* Interview controls */}
           <div className="interview-controls">
-            {viewingPreviousInterview ? (
+            {viewingPreviousInterview && (
               <button 
                 className="new-interview-btn" 
                 onClick={startNewInterview}
@@ -648,16 +606,6 @@ const Interview = () => {
                 </svg>
                 Go to Current
               </button>
-            ) : (
-              messages.length > 1 && (
-                <button 
-                  className="end-interview-btn" 
-                  onClick={handleEndAndSaveInterview}
-                  disabled={isEndingInterview}
-                >
-                  {isEndingInterview ? 'Saving...' : 'End & Save Interview'}
-                </button>
-              )
             )}
           </div>
         </div>
