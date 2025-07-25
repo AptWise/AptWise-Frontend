@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import icon from '../assets/icon.svg';
@@ -7,6 +7,7 @@ import './InterviewHistory.css';
 
 const InterviewHistory = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { _user } = useContext(AuthContext);
   const [interviews, setInterviews] = useState([]);
   const [selectedInterview, setSelectedInterview] = useState(null);
@@ -24,11 +25,54 @@ const InterviewHistory = () => {
     loadInterviews();
   }, []);
 
+  // Clear navigation state after processing to prevent interference
+  useEffect(() => {
+    if (location.state?.autoSelectLatest && interviews.length > 0) {
+      // Clear the navigation state after a short delay to allow processing
+      const timer = setTimeout(() => {
+        window.history.replaceState({}, document.title);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, interviews]);
+
   const loadInterviews = async () => {
     try {
       setLoadingInterviews(true);
       const interviewsData = await apiService.getUserInterviews();
-      setInterviews(interviewsData);
+      
+      // Sort interviews by created_at in descending order (most recent first)
+      const sortedInterviews = interviewsData.sort((a, b) => {
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+      
+      setInterviews(sortedInterviews);
+      
+      // Auto-select the latest interview if requested from navigation state
+      const shouldAutoSelect = location.state?.autoSelectLatest;
+      const newInterviewId = location.state?.newInterviewId;
+      
+      if (shouldAutoSelect && sortedInterviews.length > 0) {
+        // Find the most recent interview (or the specific new interview if provided)
+        let latestInterview;
+        
+        if (newInterviewId) {
+          latestInterview = sortedInterviews.find(interview => interview.id === newInterviewId);
+        }
+        
+        // If no specific interview found, use the first one (most recent after sorting)
+        if (!latestInterview) {
+          latestInterview = sortedInterviews[0];
+        }
+        
+        if (latestInterview) {
+          // Use setTimeout to ensure state is properly set before selecting
+          setTimeout(() => {
+            handleInterviewSelect(latestInterview);
+          }, 100);
+        }
+      }
     } catch (error) {
       console.error('Error loading interviews:', error);
       setError('Failed to load interviews');
@@ -169,6 +213,43 @@ const InterviewHistory = () => {
     });
   };
 
+  // Function to get grade class based on grade value
+  const getGradeClass = (grade) => {
+    if (!grade) return '';
+    
+    const gradeUpper = grade.toUpperCase();
+    switch (gradeUpper) {
+      case 'A+':
+        return 'grade-a-plus';
+      case 'A':
+        return 'grade-a';
+      case 'A-':
+        return 'grade-a';
+      case 'B+':
+        return 'grade-b-plus';
+      case 'B':
+        return 'grade-b';
+      case 'B-':
+        return 'grade-b';
+      case 'C+':
+        return 'grade-c-plus';
+      case 'C':
+        return 'grade-c';
+      case 'C-':
+        return 'grade-c';
+      case 'D+':
+        return 'grade-d-plus';
+      case 'D':
+        return 'grade-d';
+      case 'D-':
+        return 'grade-d';
+      case 'F':
+        return 'grade-f';
+      default:
+        return '';
+    }
+  };
+
   const renderChatContent = () => {
     if (loadingChat) {
       return (
@@ -247,7 +328,7 @@ const InterviewHistory = () => {
             <div className="overall-score">
               <span className="score-label">Overall Score:</span>
               <span className="score-value">{evaluation.overall_score}/100</span>
-              <span className="grade">{evaluation.interview_grade}</span>
+              <span className={`grade ${getGradeClass(evaluation.interview_grade)}`}>{evaluation.interview_grade}</span>
             </div>
           </div>
 

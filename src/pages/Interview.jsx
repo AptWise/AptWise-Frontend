@@ -380,11 +380,9 @@ const Interview = () => {
         });
       }
       
-      alert('Interview saved successfully!');
-      
       // Reload previous interviews to show the new one
       await loadPreviousInterviews();
-      
+
       // Reset the current interview
       setMessages([{
         id: 1,
@@ -392,20 +390,15 @@ const Interview = () => {
         content: createWelcomeMessage(),
         timestamp: new Date(),
       }]);
-      
-      // Navigate to evaluation page with interview data
-      navigate('/evaluation', { 
+
+      // Navigate to interview history page where the new evaluation will be shown
+      navigate('/interview-history', { 
         state: { 
-          interviewData: interviewData,
-          conversationHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content,
-            timestamp: msg.timestamp.toISOString()
-          })),
-          evaluationResult: evaluationResult.success ? evaluationResult.evaluation : null
+          newInterviewId: savedInterview.id,
+          autoSelectLatest: true
         } 
       });
-      
+
     } catch (error) {
       console.error('Error saving interview:', error);
       alert('Failed to save interview. Please try again.');
