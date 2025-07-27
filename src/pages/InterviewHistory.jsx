@@ -20,6 +20,7 @@ const InterviewHistory = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingInterview, setDeletingInterview] = useState(false);
   const [error, setError] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({});
 
   useEffect(() => {
     loadInterviews();
@@ -36,6 +37,15 @@ const InterviewHistory = () => {
       return () => clearTimeout(timer);
     }
   }, [location.state, interviews]);
+
+  // Toggle expanded sections for feedback
+  const toggleSection = (questionIndex, sectionType) => {
+    const key = `${questionIndex}-${sectionType}`;
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   const loadInterviews = async () => {
     try {
@@ -319,7 +329,164 @@ const InterviewHistory = () => {
       );
     }
 
-    // If it's a structured evaluation
+    // Check for new evaluation format first
+    if (evaluation.final_score !== undefined) {
+      return (
+        <div className="evaluation-content">
+          <div className="evaluation-header">
+            <h3>Interview Evaluation</h3>
+            <div className="overall-score">
+              <span className="score-label">Final Score:</span>
+              <span className="score-value">{evaluation.final_score}/100</span>
+            </div>
+          </div>
+
+          {evaluation.overall_feedback && (
+            <div className="evaluation-section">
+              <h4>Overall Feedback</h4>
+              <p>{evaluation.overall_feedback}</p>
+            </div>
+          )}
+
+          {evaluation.skill_performance_summary && (
+            <div className="evaluation-section">
+              <h4>Skill Performance Summary</h4>
+              
+              {/* Assessed Skills with Score Cards */}
+              {Object.entries(evaluation.skill_performance_summary)
+                .filter(([, skillData]) => (skillData.score || 0) > 1)
+                .length > 0 && (
+                <div className="skill-performance-grid">
+                  {Object.entries(evaluation.skill_performance_summary)
+                    .filter(([, skillData]) => (skillData.score || 0) > 1)
+                    .sort(([, a], [, b]) => (b.score || 0) - (a.score || 0))
+                    .map(([skillName, skillData], index) => (
+                    <div key={index} className="skill-performance-item">
+                      <h5>{skillName}</h5>
+                      <div className="skill-score">{skillData.score}/100</div>
+                      <p className="skill-feedback">{skillData.feedback}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Not Assessed Skills Section */}
+              {Object.entries(evaluation.skill_performance_summary)
+                .filter(([, skillData]) => (skillData.score || 0) === 1)
+                .length > 0 && (
+                <div className="not-assessed-skills">
+                  <h5>Not Assessed Skills in this Interview</h5>
+                  <div className="not-assessed-list">
+                    {Object.entries(evaluation.skill_performance_summary)
+                      .filter(([, skillData]) => (skillData.score || 0) === 1)
+                      .map(([skillName], index) => (
+                      <span key={index} className="not-assessed-skill">{skillName}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {evaluation.detailed_breakdown && evaluation.detailed_breakdown.length > 0 && (
+            <div className="evaluation-section">
+              <h4>Question-by-Question Analysis</h4>
+              {evaluation.detailed_breakdown.map((item, index) => (
+                <div key={index} className="question-breakdown">
+                  <div className="question-info">
+                    <h5>Question {index + 1}</h5>
+                    {item.question && <p className="question-text">{item.question}</p>}
+                  </div>
+                  
+                  {item.user_answer && (
+                    <div className="user-answer-section">
+                      <h6>Your Answer:</h6>
+                      <p className="user-answer">{item.user_answer}</p>
+                    </div>
+                  )}
+                  
+                  <div className="question-scores">
+                    {item.evaluation?.correctness && (
+                      <span 
+                        className={`score-item clickable ${expandedSections[`${index}-correctness`] ? 'active' : ''}`}
+                        onClick={() => toggleSection(index, 'correctness')}
+                      >
+                        Correctness: {item.evaluation.correctness.score}/100
+                      </span>
+                    )}
+                    {item.evaluation?.completeness && (
+                      <span 
+                        className={`score-item clickable ${expandedSections[`${index}-completeness`] ? 'active' : ''}`}
+                        onClick={() => toggleSection(index, 'completeness')}
+                      >
+                        Completeness: {item.evaluation.completeness.score}/100
+                      </span>
+                    )}
+                    {item.evaluation?.confidence && (
+                      <span 
+                        className={`score-item clickable ${expandedSections[`${index}-confidence`] ? 'active' : ''}`}
+                        onClick={() => toggleSection(index, 'confidence')}
+                      >
+                        Confidence: {item.evaluation.confidence.score}/100
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p className="score-instruction">Click or tap on the score to get better understanding</p>
+                  
+                  {item.reference_answer && (
+                    <div className="reference-answer-section">
+                      <h6>Expected/Optimal Answer:</h6>
+                      <p className="reference-answer">{item.reference_answer}</p>
+                    </div>
+                  )}
+                  
+                  {expandedSections[`${index}-correctness`] && item.evaluation?.correctness?.feedback && (
+                    <div className="question-feedback expanded">
+                      <strong>Correctness:</strong> {item.evaluation.correctness.feedback}
+                    </div>
+                  )}
+                  {expandedSections[`${index}-completeness`] && item.evaluation?.completeness?.feedback && (
+                    <div className="question-feedback expanded">
+                      <strong>Completeness:</strong> {item.evaluation.completeness.feedback}
+                    </div>
+                  )}
+                  {expandedSections[`${index}-confidence`] && item.evaluation?.confidence?.feedback && (
+                    <div className="question-feedback expanded">
+                      <strong>Confidence:</strong> {item.evaluation.confidence.feedback}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {evaluation.strengths && evaluation.strengths.length > 0 && (
+            <div className="evaluation-section">
+              <h4>Strengths</h4>
+              <ul>
+                {evaluation.strengths.map((strength, index) => (
+                  <li key={index}>{strength}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {evaluation.areas_for_improvement && evaluation.areas_for_improvement.length > 0 && (
+            <div className="evaluation-section">
+              <h4>Areas for Improvement</h4>
+              <ul>
+                {evaluation.areas_for_improvement.map((area, index) => (
+                  <li key={index}>{area}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // If it's a legacy structured evaluation
     if (evaluation.overall_score) {
       return (
         <div className="evaluation-content">
