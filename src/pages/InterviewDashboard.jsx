@@ -361,7 +361,7 @@ const InterviewDashboard = () => {
       return skills.map((skill, index) => (
         <span
           key={index}
-          className="px-3 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30"
+          className="px-2 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30"
         >
           {skill}
         </span>
@@ -376,12 +376,12 @@ const InterviewDashboard = () => {
         {visibleSkills.map((skill, index) => (
           <span
             key={index}
-            className="px-3 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30"
+            className="px-2 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30"
           >
             {skill}
           </span>
         ))}
-        <span className="px-3 py-1 bg-[#A0A0A0]/10 text-[#A0A0A0] text-xs rounded-full border border-[#A0A0A0]/30">
+        <span className="px-2 py-1 bg-[#A0A0A0]/10 text-[#A0A0A0] text-xs rounded-full border border-[#A0A0A0]/30">
           +{remainingCount} more
         </span>
       </>
@@ -443,17 +443,17 @@ const InterviewDashboard = () => {
       {/* Header */}
       <header className="relative z-10 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#A0A0A0]/10 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center group cursor-pointer" onClick={() => navigate('/dashboard')}>
               <div className="relative">
                 <img 
                   src={Icon} 
                   alt="AptWise Logo" 
-                  className="h-12 mr-4 transition-transform duration-300 hover:scale-105 filter drop-shadow-[0_0_5px_#00F0FF]" 
+                  className="h-9 mr-3 transition-transform duration-300 hover:scale-105 filter drop-shadow-[0_0_5px_#00F0FF]" 
                 />
               </div>
-              <span className="text-3xl font-bold text-white font-['Orbitron']">
+              <span className="text-2xl font-bold text-white font-['Orbitron']">
                 AptWise
               </span>
             </div>
@@ -472,19 +472,19 @@ const InterviewDashboard = () => {
             </nav>
 
             {/* User menu */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
               {user && (
-                <div className="flex items-center space-x-4 bg-[#1A1A1A] rounded-lg px-6 py-3 border border-[#A0A0A0]/10 hover:border-[#00F0FF] transition-all duration-300">
+                <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#A0A0A0]/10 hover:border-[#00F0FF] transition-all duration-300">
                   <div className="relative">
                     {user.profile_picture_url ? (
                       <img
                         src={user.profile_picture_url}
                         alt="Profile"
-                        className="w-10 h-10 rounded-full ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300"
+                        className="w-8 h-8 rounded-full ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-[#00F0FF] rounded-full flex items-center justify-center ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300">
-                        <span className="text-lg font-bold text-[#0D0D0D]">
+                      <div className="w-8 h-8 bg-[#00F0FF] rounded-full flex items-center justify-center ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300">
+                        <span className="text-base font-bold text-[#0D0D0D]">
                           {user.name?.charAt(0)?.toUpperCase() || 'U'}
                         </span>
                       </div>
@@ -492,14 +492,14 @@ const InterviewDashboard = () => {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00F0FF] rounded-full border border-[#0D0D0D] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
                   </div>
                   <div className="hidden sm:block">
-                    <p className="text-white font-medium font-['Space_Grotesk']">{user.name || 'User'}</p>
-                    <p className="text-[#A0A0A0] text-sm">{user.email}</p>
+                    <p className="text-white font-medium font-['Space_Grotesk'] text-sm">{user.name || 'User'}</p>
+                    <p className="text-[#A0A0A0] text-xs">{user.email}</p>
                   </div>
                 </div>
               )}
               <button
                 onClick={handleLogout}
-                className="px-6 py-3 bg-transparent hover:bg-[#00F0FF]/10 text-[#A0A0A0] hover:text-white border-2 border-[#00F0FF] rounded-lg font-medium transition-all duration-300 btn-glow"
+                className="px-4 py-2 bg-transparent hover:bg-[#00F0FF]/10 text-[#A0A0A0] hover:text-white border-2 border-[#00F0FF] rounded-lg font-medium transition-all duration-300 btn-glow text-sm"
               >
                 <span>Logout</span>
               </button>
@@ -509,32 +509,32 @@ const InterviewDashboard = () => {
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+      <main className="relative z-10 max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-2 sm:px-0">
           {/* Page Header */}
-          <div className="mb-12 pt-6">
+          <div className="mb-8 pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-5xl font-bold mb-2 font-['Orbitron'] text-[#00F0FF]">
+                <h1 className="text-3xl font-bold mb-2 font-['Orbitron'] text-[#00F0FF]">
                   Interview Prep
                 </h1>
-                <p className="text-xl text-[#A0A0A0]">Create and manage your interview preparation sessions</p>
+                <p className="text-lg text-[#A0A0A0]">Create and manage your interview preparation sessions</p>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <button
                   onClick={() => navigate('/interview-history')}
-                  className="px-8 py-4 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                  className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <span>Past Interview & Evaluation</span>
                 </button>
                 <button
                   onClick={handleCreatePreset}
-                  className="px-8 py-4 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                  className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <span>Create Interview Preset</span>
@@ -544,20 +544,20 @@ const InterviewDashboard = () => {
           </div>
 
           {/* Interview Presets Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {interviewPresets.length === 0 ? (
               <div className="col-span-full">
-                <div className="text-center py-20 bg-[#1A1A1A] rounded-lg border-2 border-dashed border-[#A0A0A0]/30">
-                  <div className="w-16 h-16 bg-[#00F0FF]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-[#00F0FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-12 bg-[#1A1A1A] rounded-lg border-2 border-dashed border-[#A0A0A0]/30">
+                  <div className="w-12 h-12 bg-[#00F0FF]/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-[#00F0FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 font-['Space_Grotesk']">No Interview Presets</h3>
-                  <p className="text-[#A0A0A0] mb-6">Create your first interview preset to get started</p>
+                  <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">No Interview Presets</h3>
+                  <p className="text-[#A0A0A0] mb-4 text-sm">Create your first interview preset to get started</p>
                   <button
                     onClick={handleCreatePreset}
-                    className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow"
+                    className="px-5 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow"
                   >
                     Create Preset
                   </button>
@@ -570,13 +570,13 @@ const InterviewDashboard = () => {
                   className="bg-[#1A1A1A] rounded-lg border-2 border-[#A0A0A0]/20 hover:border-[#00F0FF]/50 shadow-[0_0_20px_rgba(0,240,255,0.1)] card-hover-effect cursor-pointer transition-all duration-300"
                   onClick={() => handleShowPresetDialog(preset)}
                 >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-2 font-['Space_Grotesk']">
+                        <h3 className="text-lg font-bold text-white mb-2 font-['Space_Grotesk']">
                           {preset.name}
                         </h3>
-                        <p className="text-[#A0A0A0] text-sm mb-3">
+                        <p className="text-[#A0A0A0] text-xs mb-2">
                           {truncateDescription(preset.description)}
                           {preset.description && preset.description.length > 80 && (
                             <span className="text-[#00F0FF] text-xs ml-1 font-medium">
@@ -585,15 +585,15 @@ const InterviewDashboard = () => {
                           )}
                         </p>
                         {preset.company && (
-                          <div className="flex items-center space-x-2 mb-2">
-                            <span className="text-[#00F0FF] text-sm font-medium">Company:</span>
-                            <span className="text-white text-sm">{preset.company}</span>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-[#00F0FF] text-xs font-medium">Company:</span>
+                            <span className="text-white text-xs">{preset.company}</span>
                           </div>
                         )}
                         {preset.role && (
-                          <div className="flex items-center space-x-2 mb-3">
-                            <span className="text-[#00F0FF] text-sm font-medium">Role:</span>
-                            <span className="text-white text-sm">{preset.role}</span>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="text-[#00F0FF] text-xs font-medium">Role:</span>
+                            <span className="text-white text-xs">{preset.role}</span>
                           </div>
                         )}
                       </div>
@@ -604,30 +604,30 @@ const InterviewDashboard = () => {
                         }}
                         className="text-[#A0A0A0] hover:text-red-500 transition-colors duration-300 p-1"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
                     </div>
 
                     {/* Skills Preview */}
-                    <div className="mb-4">
-                      <p className="text-[#00F0FF] text-sm font-medium mb-2">Skills:</p>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="mb-3">
+                      <p className="text-[#00F0FF] text-xs font-medium mb-1">Skills:</p>
+                      <div className="flex flex-wrap gap-1">
                         {renderSkillsPreview(preset.skills)}
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleLaunchInterview(preset);
                         }}
-                        className="flex-1 px-4 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center justify-center space-x-2"
+                        className="flex-1 px-3 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center justify-center space-x-1 text-sm"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.5a2.5 2.5 0 000-5H8.5a2.5 2.5 0 000 5H10z" />
                         </svg>
                         <span>Launch Interview</span>
@@ -635,7 +635,7 @@ const InterviewDashboard = () => {
                     </div>
 
                     {/* Created date */}
-                    <div className="mt-4 pt-4 border-t border-[#A0A0A0]/20">
+                    <div className="mt-3 pt-3 border-t border-[#A0A0A0]/20">
                       <p className="text-[#A0A0A0] text-xs">
                         Created: {preset.createdAt && preset.createdAt instanceof Date ? preset.createdAt.toLocaleDateString() : 'Unknown'}
                       </p>
@@ -651,33 +651,33 @@ const InterviewDashboard = () => {
       {/* Create Interview Preset Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-          <div className="bg-[#1A1A1A] rounded-lg border-2 border-[#00F0FF]/30 shadow-[0_0_40px_rgba(0,240,255,0.3)] max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white font-['Orbitron']">
+          <div className="bg-[#1A1A1A] rounded-lg border-2 border-[#00F0FF]/30 shadow-[0_0_40px_rgba(0,240,255,0.3)] max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-white font-['Orbitron']">
                   Create Interview Preset
                 </h2>
                 <button
                   onClick={handleCloseModal}
                   className="text-[#A0A0A0] hover:text-white transition-colors duration-300"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleSavePreset(); }} className="space-y-6">
+              <form onSubmit={(e) => { e.preventDefault(); handleSavePreset(); }} className="space-y-5">
                 {/* Side by Side Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
                   {/* Left Section - Fill with AI */}
-                  <div className="bg-[#0D0D0D]/50 border border-[#00F0FF]/20 rounded-lg p-6">
-                    <div className="mb-6">
-                      <h3 className="text-[#00F0FF] text-xl font-medium mb-2">Fill with AI</h3>
-                      <p className="text-[#A0A0A0] text-sm">Let AI generate your interview preset details</p>
+                  <div className="bg-[#0D0D0D]/50 border border-[#00F0FF]/20 rounded-lg p-4">
+                    <div className="mb-4">
+                      <h3 className="text-[#00F0FF] text-lg font-medium mb-2">Fill with AI</h3>
+                      <p className="text-[#A0A0A0] text-xs">Let AI generate your interview preset details</p>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <div>
                         <label className="block text-[#00F0FF] text-sm font-medium mb-2">
                           Describe your interview preset *
@@ -685,7 +685,7 @@ const InterviewDashboard = () => {
                         <textarea
                           value={aiDescription}
                           onChange={(e) => setAiDescription(e.target.value)}
-                          className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 h-32 resize-none"
+                          className="w-full px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 h-24 resize-none text-sm"
                           placeholder="e.g., Frontend developer position at Google focusing on React and JavaScript"
                           required
                         />
@@ -694,16 +694,16 @@ const InterviewDashboard = () => {
                         type="button"
                         onClick={handleGenerateWithAI}
                         disabled={isGeneratingPreset || !aiDescription.trim()}
-                        className="w-full px-4 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                        className="w-full px-3 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm"
                       >
                         {isGeneratingPreset ? (
                           <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#0D0D0D]"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#0D0D0D]"></div>
                             <span>Generating...</span>
                           </>
                         ) : (
                           <>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                             </svg>
                             <span>Generate Details</span>
@@ -732,13 +732,13 @@ const InterviewDashboard = () => {
                   </div>
 
                   {/* Right Section - Fill it manually */}
-                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-6">
-                    <div className="mb-6">
-                      <h3 className="text-white text-xl font-medium mb-2">Fill it manually</h3>
-                      <p className="text-[#A0A0A0] text-sm">Manually enter your interview preset details</p>
+                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                    <div className="mb-4">
+                      <h3 className="text-white text-lg font-medium mb-2">Fill it manually</h3>
+                      <p className="text-[#A0A0A0] text-xs">Manually enter your interview preset details</p>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <div>
                         <label className="block text-[#00F0FF] text-sm font-medium mb-2">
                           Preset Name *
@@ -747,7 +747,7 @@ const InterviewDashboard = () => {
                           type="text"
                           value={newPreset.name}
                           onChange={(e) => setNewPreset(prev => ({ ...prev, name: e.target.value }))}
-                          className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300"
+                          className="w-full px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 text-sm"
                           placeholder="e.g., Frontend Developer at Google"
                           required
                         />
@@ -760,13 +760,13 @@ const InterviewDashboard = () => {
                         <textarea
                           value={newPreset.description}
                           onChange={(e) => setNewPreset(prev => ({ ...prev, description: e.target.value }))}
-                          className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 h-24 resize-none"
+                          className="w-full px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 h-20 resize-none text-sm"
                           placeholder="Describe what this interview preset is for..."
                           required
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4">
+                      <div className="grid grid-cols-1 gap-3">
                         <div>
                           <label className="block text-[#00F0FF] text-sm font-medium mb-2">
                             Company
@@ -775,7 +775,7 @@ const InterviewDashboard = () => {
                             type="text"
                             value={newPreset.company}
                             onChange={(e) => setNewPreset(prev => ({ ...prev, company: e.target.value }))}
-                            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300"
+                            className="w-full px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 text-sm"
                             placeholder="e.g., Google"
                           />
                         </div>
@@ -787,7 +787,7 @@ const InterviewDashboard = () => {
                             type="text"
                             value={newPreset.role}
                             onChange={(e) => setNewPreset(prev => ({ ...prev, role: e.target.value }))}
-                            className="w-full px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300"
+                            className="w-full px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 text-sm"
                             placeholder="e.g., Senior Frontend Developer"
                           />
                         </div>
@@ -797,15 +797,15 @@ const InterviewDashboard = () => {
                 </div>
 
                 {/* Skills Section - Full Width */}
-                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-6">
-                  <h3 className="text-white text-xl font-medium mb-6">Skills</h3>
+                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                  <h3 className="text-white text-lg font-medium mb-4">Skills</h3>
                   
                   {/* Skills Selection */}
-                  <div className="mb-6">
-                    <label className="block text-[#00F0FF] text-sm font-medium mb-4">
+                  <div className="mb-4">
+                    <label className="block text-[#00F0FF] text-sm font-medium mb-3">
                       Select Skills from Your Profile
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-3">
                       {userSkills && userSkills.length > 0 ? userSkills.map((skill, index) => {
                         const skillName = typeof skill === 'string' ? skill : skill.skill || skill.name || String(skill);
                         return (
@@ -813,7 +813,7 @@ const InterviewDashboard = () => {
                             key={`${skillName}-${index}`}
                             type="button"
                             onClick={() => handleSkillToggle(skillName)}
-                            className={`px-3 py-2 rounded-lg text-sm transition-all duration-300 ${
+                            className={`px-2 py-1 rounded-lg text-xs transition-all duration-300 ${
                               newPreset.selectedSkills.includes(skillName)
                                 ? 'bg-[#00F0FF] text-[#0D0D0D] font-medium'
                                 : 'bg-[#0D0D0D] text-[#A0A0A0] border border-[#A0A0A0]/30 hover:border-[#00F0FF] hover:text-white'
@@ -825,7 +825,7 @@ const InterviewDashboard = () => {
                       }) : null}
                     </div>
                     {(!userSkills || userSkills.length === 0) && (
-                      <p className="text-[#A0A0A0] text-sm italic">
+                      <p className="text-[#A0A0A0] text-xs italic">
                         No skills found in your profile. Add skills to your profile or use custom skills below.
                       </p>
                     )}
@@ -836,19 +836,19 @@ const InterviewDashboard = () => {
                     <label className="block text-[#00F0FF] text-sm font-medium mb-2">
                       Add Custom Skills
                     </label>
-                    <div className="flex space-x-2 mb-4">
+                    <div className="flex space-x-2 mb-3">
                       <input
                         type="text"
                         value={customSkillInput}
                         onChange={(e) => setCustomSkillInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomSkill())}
-                        className="flex-1 px-4 py-3 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300"
+                        className="flex-1 px-3 py-2 bg-[#0D0D0D] border border-[#A0A0A0]/30 rounded-lg text-white placeholder-[#A0A0A0] focus:border-[#00F0FF] focus:outline-none transition-colors duration-300 text-sm"
                         placeholder="Enter a skill and press Add"
                       />
                       <button
                         type="button"
                         onClick={handleAddCustomSkill}
-                        className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-medium transition-all duration-300"
+                        className="px-4 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-medium transition-all duration-300 text-sm"
                       >
                         Add
                       </button>
@@ -857,7 +857,7 @@ const InterviewDashboard = () => {
                       {newPreset.customSkills && newPreset.customSkills.length > 0 ? newPreset.customSkills.map((skill, index) => (
                         <span
                           key={`custom-${skill}-${index}`}
-                          className="px-3 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-sm rounded-full border border-[#00F0FF]/30 flex items-center space-x-2"
+                          className="px-2 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30 flex items-center space-x-1"
                         >
                           <span>{skill}</span>
                           <button
@@ -865,7 +865,7 @@ const InterviewDashboard = () => {
                             onClick={() => handleRemoveCustomSkill(skill)}
                             className="text-[#00F0FF] hover:text-red-500 transition-colors duration-300"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </button>
@@ -876,17 +876,17 @@ const InterviewDashboard = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex space-x-4 pt-6">
+                <div className="flex space-x-3 pt-4">
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="flex-1 px-6 py-3 bg-transparent border-2 border-[#A0A0A0]/30 text-[#A0A0A0] hover:border-[#A0A0A0] hover:text-white rounded-lg font-medium transition-all duration-300"
+                    className="flex-1 px-4 py-2 bg-transparent border-2 border-[#A0A0A0]/30 text-[#A0A0A0] hover:border-[#A0A0A0] hover:text-white rounded-lg font-medium transition-all duration-300 text-sm"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow"
+                    className="flex-1 px-4 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow text-sm"
                   >
                     Save Preset
                   </button>
@@ -900,53 +900,53 @@ const InterviewDashboard = () => {
       {/* Preset Details Dialog */}
       {showPresetDialog && selectedPreset && (
         <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-          <div className="bg-[#1A1A1A] rounded-lg border-2 border-[#00F0FF]/30 shadow-[0_0_40px_rgba(0,240,255,0.3)] max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div className="p-6">
+          <div className="bg-[#1A1A1A] rounded-lg border-2 border-[#00F0FF]/30 shadow-[0_0_40px_rgba(0,240,255,0.3)] max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="p-5">
               {/* Dialog Header */}
-              <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start justify-between mb-5">
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white font-['Orbitron'] mb-3">
+                  <h2 className="text-xl font-bold text-white font-['Orbitron'] mb-3">
                     {selectedPreset.name}
                   </h2>
-                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3">
                     <h3 className="text-[#00F0FF] text-sm font-medium mb-2">Description</h3>
-                    <p className="text-white text-base leading-relaxed">
+                    <p className="text-white text-sm leading-relaxed">
                       {selectedPreset.description}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleClosePresetDialog}
-                  className="text-[#A0A0A0] hover:text-white transition-colors duration-300 ml-4"
+                  className="text-[#A0A0A0] hover:text-white transition-colors duration-300 ml-3"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
               {/* Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {/* Company */}
                 {selectedPreset.company && (
-                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3">
                     <h3 className="text-[#00F0FF] text-sm font-medium mb-2">Company</h3>
-                    <p className="text-white text-base">{selectedPreset.company}</p>
+                    <p className="text-white text-sm">{selectedPreset.company}</p>
                   </div>
                 )}
 
                 {/* Role */}
                 {selectedPreset.role && (
-                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                  <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3">
                     <h3 className="text-[#00F0FF] text-sm font-medium mb-2">Role</h3>
-                    <p className="text-white text-base">{selectedPreset.role}</p>
+                    <p className="text-white text-sm">{selectedPreset.role}</p>
                   </div>
                 )}
 
                 {/* Created Date */}
-                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3">
                   <h3 className="text-[#00F0FF] text-sm font-medium mb-2">Created</h3>
-                  <p className="text-white text-base">
+                  <p className="text-white text-sm">
                     {selectedPreset.createdAt && selectedPreset.createdAt instanceof Date 
                       ? selectedPreset.createdAt.toLocaleDateString() 
                       : 'Unknown'}
@@ -954,21 +954,21 @@ const InterviewDashboard = () => {
                 </div>
 
                 {/* Skills Count */}
-                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4">
+                <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3">
                   <h3 className="text-[#00F0FF] text-sm font-medium mb-2">Skills Count</h3>
-                  <p className="text-white text-base">{selectedPreset.skills ? selectedPreset.skills.length : 0} skills</p>
+                  <p className="text-white text-sm">{selectedPreset.skills ? selectedPreset.skills.length : 0} skills</p>
                 </div>
               </div>
 
               {/* All Skills */}
-              <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-4 mb-6">
-                <h3 className="text-[#00F0FF] text-lg font-medium mb-4">All Skills</h3>
+              <div className="bg-[#0D0D0D]/50 border border-[#A0A0A0]/20 rounded-lg p-3 mb-4">
+                <h3 className="text-[#00F0FF] text-base font-medium mb-3">All Skills</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedPreset.skills && selectedPreset.skills.length > 0 ? (
                     selectedPreset.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-2 bg-[#00F0FF]/10 text-[#00F0FF] text-sm rounded-full border border-[#00F0FF]/30"
+                        className="px-2 py-1 bg-[#00F0FF]/10 text-[#00F0FF] text-xs rounded-full border border-[#00F0FF]/30"
                       >
                         {skill}
                       </span>
@@ -980,10 +980,10 @@ const InterviewDashboard = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex space-x-4">
+              <div className="flex space-x-3">
                 <button
                   onClick={handleClosePresetDialog}
-                  className="flex-1 px-6 py-3 bg-transparent border-2 border-[#A0A0A0]/30 text-[#A0A0A0] hover:border-[#A0A0A0] hover:text-white rounded-lg font-medium transition-all duration-300"
+                  className="flex-1 px-4 py-2 bg-transparent border-2 border-[#A0A0A0]/30 text-[#A0A0A0] hover:border-[#A0A0A0] hover:text-white rounded-lg font-medium transition-all duration-300 text-sm"
                 >
                   Close
                 </button>
@@ -992,9 +992,9 @@ const InterviewDashboard = () => {
                     handleClosePresetDialog();
                     handleLaunchInterview(selectedPreset);
                   }}
-                  className="flex-1 px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center justify-center space-x-2"
+                  className="flex-1 px-4 py-2 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center justify-center space-x-2 text-sm"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.5a2.5 2.5 0 000-5H8.5a2.5 2.5 0 000 5H10z" />
                   </svg>
                   <span>Launch Interview</span>
