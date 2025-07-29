@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api.js';
 import Icon from '../assets/icon.svg';
+import Navbar from '../components/Navbar';
 
 // Define a global style that will be injected once
 const GlobalStyle = () => (
@@ -29,6 +31,7 @@ const GlobalStyle = () => (
 );
 
 const Dashboard = () => {
+  const { user: authUser, loading: authLoading } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userSkills, setUserSkills] = useState([]);
@@ -65,17 +68,6 @@ const Dashboard = () => {
     fetchUserData();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await apiService.logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Even if logout fails, clear local state and redirect
-      navigate('/login');
-    }
-  };
-
   const handleEditProfile = (mode) => {
     setEditMode(mode);
     setShowEditModal(true);
@@ -104,7 +96,45 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  // Check if user is not authenticated
+  if (!authLoading && !authUser) {
+    return (
+      <div className="min-h-screen bg-[#0D0D0D] relative dashboard-container">
+        <GlobalStyle />
+        <Navbar />
+        
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="w-16 h-16 bg-[#00F0FF]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-[#00F0FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-4 font-['Orbitron']">Access Required</h2>
+            <p className="text-[#A0A0A0] mb-8 leading-relaxed">
+              Get started or login to continue to your personalized dashboard and begin your interview preparation journey.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button 
+                onClick={() => navigate('/Registration')}
+                className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 transform hover:translateY(-2px) hover:shadow-[0_8px_25px_rgba(0,240,255,0.4)]"
+              >
+                Get Started Free
+              </button>
+              <button 
+                onClick={() => navigate('/login')}
+                className="px-6 py-3 bg-transparent border-2 border-[#00F0FF] hover:bg-[#00F0FF]/10 text-[#00F0FF] hover:text-white rounded-lg font-bold transition-all duration-300"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
         <div className="text-center">
@@ -116,63 +146,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] relative overflow-hidden dashboard-container">
+    <div className="min-h-screen bg-[#0D0D0D] relative dashboard-container">
       <GlobalStyle />
-
-      {/* Header */}
-      <header className="relative z-10 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#A0A0A0]/10 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center group">
-              <div className="relative">
-                <img 
-                  src={Icon} 
-                  alt="AptWise Logo" 
-                  className="h-9 mr-3 transition-transform duration-300 hover:scale-105 filter drop-shadow-[0_0_5px_#00F0FF]" 
-                />
-              </div>
-              <span className="text-2xl font-bold text-white font-['Orbitron']">
-                AptWise
-              </span>
-            </div>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-3 bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#A0A0A0]/10 hover:border-[#00F0FF] transition-all duration-300">
-                  <div className="relative">
-                    {user.profile_picture_url ? (
-                      <img
-                        src={user.profile_picture_url}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 bg-[#00F0FF] rounded-full flex items-center justify-center ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300">
-                        <span className="text-sm font-bold text-[#0D0D0D]">
-                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#00F0FF] rounded-full border border-[#0D0D0D] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
-                  </div>
-                  <div className="hidden sm:block">
-                    <p className="text-white font-medium font-['Space_Grotesk'] text-sm">{user.name || 'User'}</p>
-                    <p className="text-[#A0A0A0] text-xs">{user.email}</p>
-                  </div>
-                </div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-transparent hover:bg-[#00F0FF]/10 text-[#A0A0A0] hover:text-white border-2 border-[#00F0FF] rounded-lg font-medium transition-all duration-300 btn-glow text-sm"
-              >
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main content */}
       <main className="relative z-10 max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">

@@ -4,6 +4,7 @@ import Icon from '../assets/icon.svg';
 import linkedinService from '../services/linkedinService.js';
 import githubService from '../services/githubService.js';
 import apiService from '../services/api.js';
+import Navbar from '../components/Navbar';
 import './Login.css';
 
 const Login = () => {    const [email, setEmail] = useState('');
@@ -61,8 +62,9 @@ const Login = () => {    const [email, setEmail] = useState('');
     };
 
     return (
-
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center font-inter">
+        <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+            <Navbar />
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center font-inter" style={{ paddingTop: '0', minHeight: 'calc(100vh - 80px)' }}>
             <div className="bg-gray-800 rounded-xl shadow-2xl flex w-full max-w-6xl overflow-hidden border border-gray-700">
 
                 <div className="hidden lg:flex flex-col w-1/2 p-12 bg-gradient-to-br from-gray-900 to-gray-800 rounded-l-xl justify-center items-center text-center">
@@ -204,6 +206,7 @@ const Login = () => {    const [email, setEmail] = useState('');
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

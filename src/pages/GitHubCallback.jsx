@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import Navbar from '../components/Navbar';
 
 const GitHubCallback = () => {
   useEffect(() => {
@@ -55,10 +56,13 @@ const GitHubCallback = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-        <p className="text-gray-300">Processing GitHub authentication...</p>
+    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+      <Navbar />
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center" style={{ paddingTop: '0', minHeight: 'calc(100vh - 80px)' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Processing GitHub authentication...</p>
+        </div>
       </div>
     </div>
   );

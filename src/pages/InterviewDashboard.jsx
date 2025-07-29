@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api.js';
 import Icon from '../assets/icon.svg';
 
@@ -59,6 +59,21 @@ const GlobalStyle = () => (
       transform: translateY(-5px);
       box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1);
     }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-fadeInDown {
+      animation: fadeInDown 0.2s ease-out;
+    }
   `}</style>
 );
 
@@ -82,7 +97,10 @@ const InterviewDashboard = () => {
   const [aiDescription, setAiDescription] = useState('');
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [showPresetDialog, setShowPresetDialog] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Function to generate a random 20-digit ID
   const generateRandomId = () => {
@@ -150,10 +168,49 @@ const InterviewDashboard = () => {
     try {
       await apiService.logout();
       navigate('/login');
+      setIsDropdownOpen(false);
     } catch (error) {
       console.error('Logout failed:', error);
       navigate('/login');
     }
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.name) return user.name;
+    if (user?.full_name) return user.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
+  };
+
+  const getUserAvatar = () => {
+    // Return first letter of name or email as avatar
+    const name = getUserDisplayName();
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const isActiveLink = (path) => {
+    if (path === '/dashboard') {
+      return location.pathname === '/dashboard';
+    }
+    return location.pathname.startsWith(path);
   };
 
   const handleCreatePreset = () => {
@@ -440,72 +497,125 @@ const InterviewDashboard = () => {
     <div className="min-h-screen bg-[#0D0D0D] relative overflow-hidden interview-dashboard-container">
       <GlobalStyle />
 
-      {/* Header */}
-      <header className="relative z-10 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#A0A0A0]/10 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center group cursor-pointer" onClick={() => navigate('/dashboard')}>
-              <div className="relative">
-                <img 
-                  src={Icon} 
-                  alt="AptWise Logo" 
-                  className="h-9 mr-3 transition-transform duration-300 hover:scale-105 filter drop-shadow-[0_0_5px_#00F0FF]" 
-                />
-              </div>
-              <span className="text-2xl font-bold text-white font-['Orbitron']">
-                AptWise
-              </span>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="text-[#A0A0A0] hover:text-[#00F0FF] transition-colors duration-300 font-['Space_Grotesk']"
-              >
-                Dashboard
-              </button>
-              <span className="text-[#00F0FF] font-['Space_Grotesk'] font-medium">
-                Interview Prep
-              </span>
-            </nav>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-lg px-4 py-2 border border-[#A0A0A0]/10 hover:border-[#00F0FF] transition-all duration-300">
+      {/* Header - Updated to match Navbar component */}
+      <header className="sticky top-0 z-100 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#A0A0A0]/10">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
+            <img src={Icon} alt="AptWise Icon" className="h-11 mr-3 filter drop-shadow-[0_0_5px_#2b00ff]" />
+            <span className="text-2xl font-bold text-white font-['Orbitron'] text-shadow-[0_0_10px_rgba(0,240,255,0.3)]">AptWise</span>
+          </div>
+          
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-6">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className={`font-medium transition-all duration-300 cursor-pointer relative ${
+                isActiveLink('/dashboard') 
+                  ? 'text-[#00F0FF] font-semibold' 
+                  : 'text-[#A0A0A0] hover:text-white hover:text-shadow-[0_0_8px_rgba(0,240,255,0.5)]'
+              }`}
+              style={{
+                textShadow: isActiveLink('/dashboard') ? '0 0 10px rgba(0,240,255,0.6)' : undefined
+              }}
+            >
+              Dashboard
+              {isActiveLink('/dashboard') && (
+                <div className="absolute bottom-[-8px] left-0 w-full h-[2px] bg-gradient-to-r from-[#2b00ff] to-[#00f0ff] rounded-[1px] shadow-[0_0_8px_rgba(0,240,255,0.4)]"></div>
+              )}
+            </button>
+            <span 
+              className={`font-medium relative ${
+                isActiveLink('/interview') 
+                  ? 'text-[#00F0FF] font-semibold' 
+                  : 'text-[#00F0FF] font-medium'
+              }`}
+              style={{
+                textShadow: isActiveLink('/interview') ? '0 0 10px rgba(0,240,255,0.6)' : undefined
+              }}
+            >
+              Interview Prep
+              {isActiveLink('/interview') && (
+                <div className="absolute bottom-[-8px] left-0 w-full h-[2px] bg-gradient-to-r from-[#2b00ff] to-[#00f0ff] rounded-[1px] shadow-[0_0_8px_rgba(0,240,255,0.4)]"></div>
+              )}
+            </span>
+          </div>
+          
+          {/* User Actions */}
+          <div className="flex items-center">
+            {user ? (
+              <div className="user-menu relative" ref={dropdownRef}>
+                <div 
+                  className="user-badge flex items-center gap-3 px-4 py-2 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/30 cursor-pointer transition-all duration-300 hover:bg-[#00F0FF]/20 hover:transform hover:translate-y-[-1px] hover:shadow-[0_4px_15px_rgba(0,240,255,0.2)]" 
+                  onClick={toggleDropdown}
+                >
                   <div className="relative">
                     {user.profile_picture_url ? (
                       <img
                         src={user.profile_picture_url}
                         alt="Profile"
-                        className="w-8 h-8 rounded-full ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-[#00F0FF]/30 transition-all duration-300 hover:border-[#00F0FF] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
                       />
                     ) : (
-                      <div className="w-8 h-8 bg-[#00F0FF] rounded-full flex items-center justify-center ring-2 ring-[#A0A0A0]/30 hover:ring-[#00F0FF] transition-all duration-300">
-                        <span className="text-base font-bold text-[#0D0D0D]">
-                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </span>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2b00ff] to-[#00f0ff] flex items-center justify-center text-white font-semibold text-sm">
+                        {getUserAvatar()}
                       </div>
                     )}
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00F0FF] rounded-full border border-[#0D0D0D] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
+                    <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#00f0ff] rounded-full border-2 border-[#0D0D0D] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
                   </div>
-                  <div className="hidden sm:block">
-                    <p className="text-white font-medium font-['Space_Grotesk'] text-sm">{user.name || 'User'}</p>
-                    <p className="text-[#A0A0A0] text-xs">{user.email}</p>
-                  </div>
+                  <span className="text-white font-medium text-sm max-w-30 overflow-hidden text-ellipsis whitespace-nowrap hidden sm:block">
+                    {getUserDisplayName()}
+                  </span>
                 </div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-transparent hover:bg-[#00F0FF]/10 text-[#A0A0A0] hover:text-white border-2 border-[#00F0FF] rounded-lg font-medium transition-all duration-300 btn-glow text-sm"
-              >
-                <span>Logout</span>
-              </button>
-            </div>
+                
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="profile-dropdown absolute top-full right-0 mt-2 w-72 bg-[#0D0D0D]/95 backdrop-blur-md border border-[#00F0FF]/20 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_20px_rgba(0,240,255,0.1)] z-50 overflow-hidden animate-fadeInDown">
+                    <div className="dropdown-header flex items-center gap-3 p-4 bg-[#00F0FF]/5">
+                      <div className="dropdown-avatar relative flex-shrink-0">
+                        {user.profile_picture_url ? (
+                          <img
+                            src={user.profile_picture_url}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-[#00F0FF]/30"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2b00ff] to-[#00f0ff] flex items-center justify-center text-white font-semibold text-base border-2 border-[#00F0FF]/30">
+                            {getUserAvatar()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="dropdown-user-info flex flex-col gap-0.5 flex-1 min-w-0">
+                        <span className="text-white font-semibold text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                          {getUserDisplayName()}
+                        </span>
+                        <span className="text-[#A0A0A0] text-xs overflow-hidden text-ellipsis whitespace-nowrap">
+                          {user.email}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-px bg-[#A0A0A0]/10"></div>
+                    <button 
+                      className="w-full p-3 text-left text-[#ff4444] hover:bg-[#ff4444]/10 hover:text-[#ff6666] font-medium text-sm transition-all duration-200 font-['Space_Grotesk']"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <button className="btn login mr-4 px-5 py-2 bg-transparent border border-[#00F0FF] text-[#00F0FF] rounded-lg font-semibold transition-all duration-300 hover:bg-[#00F0FF]/10 hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]" onClick={() => navigate('/login')}>
+                  Login
+                </button>
+                <button className="btn get-started px-5 py-2 bg-gradient-to-r from-[#2b00ff] to-[#00f0ff] text-white rounded-lg font-semibold transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:shadow-[0_8px_25px_rgba(43,0,255,0.4)]" onClick={() => navigate('/Registration')}>
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
-        </div>
+        </nav>
       </header>
 
       {/* Main content */}
@@ -523,7 +633,7 @@ const InterviewDashboard = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => navigate('/interview-history')}
-                  className="px-6 py-3 bg-[#00F0FF] hover:bg-[#00F0FF]/80 text-[#0D0D0D] rounded-lg font-bold transition-all duration-300 btn-glow flex items-center space-x-2 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                  className="px-6 py-3 bg-transparent border-2 border-[#00F0FF] hover:bg-[#00F0FF]/10 text-[#00F0FF] hover:text-white rounded-lg font-bold transition-all duration-300 flex items-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
