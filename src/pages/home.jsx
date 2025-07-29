@@ -17,7 +17,7 @@ const Home = () => {
         </div>
         <div className="nav-links">
           <a href="#">Home</a>
-          <a href="#">Features</a>
+          <a href="/features">Features</a>
           <a href="#">Try Demo</a>
           <a href="#">About</a>
         </div>
@@ -40,6 +40,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+
     </div>
   );
 };
