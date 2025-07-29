@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import Home from './pages/home';
+import Features from './pages/Features';
 import Login from './pages/Login';
 import Register from './pages/Registration';
 import LinkedInCallback from './pages/LinkedInCallback';
@@ -19,6 +20,7 @@ const App = () => {
     <div className="app-container">
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/features" element={<Features />} />
         <Route path="/login" element={<Login />} />
         <Route path="/Registration" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
