@@ -4,6 +4,7 @@ import Icon from '../assets/icon.svg';
 import linkedinService from '../services/linkedinService.js';
 import githubService from '../services/githubService.js';
 import apiService from '../services/api.js';
+import Navbar from '../components/Navbar';
 import './Registration.css';
 
 const Registration = () => {
@@ -652,7 +653,9 @@ const Registration = () => {
   const prevStep = () => setStep(prev => prev - 1);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center font-inter p-2">
+    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+      <Navbar />
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center font-inter p-2" style={{ paddingTop: '0', minHeight: 'calc(100vh - 80px)' }}>
       <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden border border-gray-700">
         {/* Progress Bar */}
         <div className="h-1.5 bg-gray-700 relative">
@@ -1255,6 +1258,7 @@ const Registration = () => {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

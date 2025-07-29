@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import githubService from '../services/githubService.js';
 import apiService from '../services/api.js';
+import Navbar from '../components/Navbar';
 
 const GitHubTest = () => {
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,9 @@ const GitHubTest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+      <Navbar />
+      <div className="min-h-screen bg-gray-900 p-8" style={{ paddingTop: '80px', minHeight: 'calc(100vh - 80px)' }}>
       <div className="max-w-md mx-auto bg-gray-800 rounded-lg p-6">
         <h1 className="text-2xl font-bold text-white mb-6 text-center">GitHub OAuth Test</h1>
         
@@ -109,6 +112,7 @@ const GitHubTest = () => {
           </a>
         </div>
       </div>
+    </div>
     </div>
   );
 };

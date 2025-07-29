@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import apiService from '../services/api.js';
 import linkedinService from '../services/linkedinService.js';
+import Navbar from '../components/Navbar';
 
 const LinkedInTest = () => {
   const [status, setStatus] = useState('');
@@ -52,7 +53,9 @@ const LinkedInTest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+      <Navbar />
+      <div className="min-h-screen bg-gray-900 p-8" style={{ paddingTop: '80px', minHeight: 'calc(100vh - 80px)' }}>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-white mb-8">LinkedIn OAuth Test</h1>
         
@@ -118,6 +121,7 @@ const LinkedInTest = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

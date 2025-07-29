@@ -1,30 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Features.css';
-import icon from '../assets/icon.svg';
+import Navbar from '../components/Navbar';
 
 const Features = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="features-page-container">
-      {/* Top Navigation Bar */}
-      <nav className="navbar">
-        <div className="logo">
-          <img src={icon} alt="AptWise Icon" className="logo-icon" />
-          <span className="logo-text">AptWise</span>
-        </div>
-        <div className="nav-links">
-          <a href="/">Home</a>
-          <a href="/features">Features</a>
-          <a href="#">Try Demo</a>
-          <a href="#">About</a>
-        </div>
-        <div className="nav-actions">
-          <button className="btn login" onClick={() => navigate('/login')}>Login</button>
-          <button className="btn get-started" onClick={() => navigate('/Registration')}>Get Started</button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Features Hero Section */}
       <section className="features-hero">
@@ -117,12 +103,20 @@ const Features = () => {
             Join thousands of candidates who have improved their interview skills with AptWise.
           </p>
           <div className="cta-buttons">
-            <button className="btn get-started-cta" onClick={() => navigate('/Registration')}>
-              Get Started Free
-            </button>
-            <button className="btn try-demo-cta" onClick={() => navigate('/login')}>
-              Try Demo
-            </button>
+            {user ? (
+              <button className="btn start-interview-prep-cta" onClick={() => navigate('/dashboard')}>
+                Start Your Interview Prep
+              </button>
+            ) : (
+              <>
+                <button className="btn get-started-cta" onClick={() => navigate('/Registration')}>
+                  Get Started Free
+                </button>
+                <button className="btn try-demo-cta" onClick={() => navigate('/login')}>
+                  Try Demo
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>

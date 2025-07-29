@@ -1,31 +1,20 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import './home.css';
-import icon from '../assets/icon.svg';
 import Button from '../components/Button';
+import Navbar from '../components/Navbar';
 
 const Home = () => {
-  const navigate = useNavigate();
+  // Add and remove body class to control scrolling
+  useEffect(() => {
+    document.body.classList.add('home-page-active');
+    return () => {
+      document.body.classList.remove('home-page-active');
+    };
+  }, []);
 
   return (
     <div className="home-container">
-      {/* Top Navigation Bar */}
-      <nav className="navbar">
-        <div className="logo">
-          <img src={icon} alt="AptWise Icon" className="logo-icon" />
-          <span className="logo-text">AptWise</span>
-        </div>
-        <div className="nav-links">
-          <a href="#">Home</a>
-          <a href="/features">Features</a>
-          <a href="#">Try Demo</a>
-          <a href="#">About</a>
-        </div>
-        <div className="nav-actions">
-          <button className="btn login" onClick={() => navigate('/login')}>Login</button>
-          <button className="btn get-started"onClick={() => navigate('/Registration')}>Get Started</button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="hero">
@@ -35,8 +24,7 @@ const Home = () => {
             AptWise is your AI-powered prep companion — personalized, precise, and ready anytime.
           </p>
           <div className="hero-buttons">
-            <Button type="primary" text="Try Demo" />
-            <Button type="secondary" text="Explore Features" onClick={() => navigate('/login')} />
+            <Button type="secondary" text="Try Demo" />
           </div>
         </div>
       </section>
