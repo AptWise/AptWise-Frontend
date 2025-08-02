@@ -13,7 +13,8 @@ html, body {
   margin: 0;
   background-color: #0D0D0D;
   color: #FFFFFF;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden; /* Prevent scrolling on home page */
 }
 
 .navbar {
@@ -102,8 +103,8 @@ html, body {
   padding: 0 60px;
   background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 100%);
   /* --- MODIFIED FOR FULLSCREEN --- */
-  height: 100vh; /* Set to full viewport height */
-  width: 199vh;
+  height: calc(100vh - 81px); /* Subtract navbar height */
+  width: 100%;
 }
 
 .hero-text h1 {

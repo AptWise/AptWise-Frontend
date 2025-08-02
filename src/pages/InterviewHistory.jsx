@@ -651,7 +651,7 @@ const InterviewHistory = () => {
           </svg>
           Back to Dashboard
         </button>
-        <h1>Interview History & Evaluations</h1>
+        <h1>Interviews & Evaluation</h1>
       </div>
 
       <div className="history-content">
