@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Features.css';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 
 const Features = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="features-page-container">
@@ -102,12 +104,20 @@ const Features = () => {
             Join thousands of candidates who have improved their interview skills with AptWise.
           </p>
           <div className="cta-buttons">
-            <button className="btn get-started-cta" onClick={() => navigate('/Registration')}>
-              Get Started Free
-            </button>
-            <button className="btn try-demo-cta" onClick={() => navigate('/login')}>
-              Try Demo
-            </button>
+            {user ? (
+              <button className="btn get-started-cta" onClick={() => navigate('/dashboard')}>
+                Start your interview prep
+              </button>
+            ) : (
+              <>
+                <button className="btn get-started-cta" onClick={() => navigate('/Registration')}>
+                  Get Started Free
+                </button>
+                <button className="btn try-demo-cta" onClick={() => navigate('/login')}>
+                  Try Demo
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>

@@ -74,6 +74,8 @@ const Interview = () => {
   const [currentInterviewData, setCurrentInterviewData] = useState(null);
   const [isEndingInterview, setIsEndingInterview] = useState(false);
   const [isDeletingInterview, setIsDeletingInterview] = useState(false);
+  const [showWarningPopup, setShowWarningPopup] = useState(false);
+  const [selectedInterviewId, setSelectedInterviewId] = useState(null);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -430,43 +432,22 @@ const Interview = () => {
     return `Interview Session (${dateStr})`;
   };
   
-  // View a previous interview
-  const viewPreviousInterview = async (interviewId) => {
-    try {
-      const interview = await apiService.getInterviewById(interviewId);
-      if (interview) {
-        // Parse the interview text back into messages
-        const lines = interview.interview_text.split('\n');
-        const parsedMessages = [];
-        
-        let messageId = 1;
-        for (const line of lines) {
-          if (line.startsWith('user: ')) {
-            parsedMessages.push({
-              id: messageId++,
-              role: 'user',
-              content: line.substring(6),
-              timestamp: new Date(interview.created_at),
-            });
-          } else if (line.startsWith('assistant: ')) {
-            parsedMessages.push({
-              id: messageId++,
-              role: 'assistant',
-              content: line.substring(11),
-              timestamp: new Date(interview.created_at),
-            });
-          }
-        }
-        
-        setMessages(parsedMessages);
-        setViewingPreviousInterview(true);
-        setCurrentInterviewData(interview);
-      }
-    } catch (error) {
-      console.error('Error loading interview:', error);
-      alert('Failed to load interview.');
-    }
+  // Show warning popup when clicking on previous interview
+  const handlePreviousInterviewClick = (interviewId) => {
+    setSelectedInterviewId(interviewId);
+    setShowWarningPopup(true);
   };
+
+  // Handle warning popup response
+  const handleWarningResponse = (confirmed) => {
+    setShowWarningPopup(false);
+    if (confirmed && selectedInterviewId) {
+      navigate('/interview-history');
+    }
+    setSelectedInterviewId(null);
+  };
+
+//remove previous interview view option
   
   // Start a new interview
   const startNewInterview = () => {
@@ -560,7 +541,7 @@ const Interview = () => {
             <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
             <path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
           </svg>
-          {!leftSidebarCollapsed && <span className="btn-text">Past Interview & Evaluation</span>}
+          {!leftSidebarCollapsed && <span className="btn-text">Interviews & Evaluation</span>}
         </button>
         
         <div className="interview-history">
@@ -575,7 +556,7 @@ const Interview = () => {
                 <div 
                   key={interview.id} 
                   className={`history-item ${currentInterviewData?.id === interview.id ? 'selected' : ''}`}
-                  onClick={() => viewPreviousInterview(interview.id)}
+                  onClick={() => handlePreviousInterviewClick(interview.id)}
                 >
                   <span className="interview-title">{interview.title}</span>
                   <span className="history-date">
@@ -583,22 +564,6 @@ const Interview = () => {
                   </span>
                 </div>
               ))
-            )}
-          </div>
-          
-          {/* Interview controls */}
-          <div className="interview-controls">
-            {viewingPreviousInterview && (
-              <button 
-                className="new-interview-btn" 
-                onClick={startNewInterview}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                </svg>
-                Go to Current
-              </button>
             )}
           </div>
         </div>
@@ -761,6 +726,33 @@ const Interview = () => {
         )}
       </div>
       
+      {/* Warning Popup */}
+      {showWarningPopup && (
+        <div className="popup-overlay">
+          <div className="warning-popup">
+            <div className="popup-header">
+              <h3>Leave Current Interview?</h3>
+            </div>
+            <div className="popup-content">
+              <p>You are leaving your current interview. Are you sure?</p>
+            </div>
+            <div className="popup-actions">
+              <button 
+                className="btn popup-btn secondary" 
+                onClick={() => handleWarningResponse(false)}
+              >
+                No, Continue My Interview Prep
+              </button>
+              <button 
+                className="btn popup-btn primary" 
+                onClick={() => handleWarningResponse(true)}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
