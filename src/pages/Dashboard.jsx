@@ -65,8 +65,11 @@ const Dashboard = () => {
       }
     };
 
-    fetchUserData();
-  }, [navigate]);
+    // Wait for auth to load before fetching, but don't require authUser
+    if (!authLoading) {
+      fetchUserData();
+    }
+  }, [navigate, authLoading]);
 
   const handleEditProfile = (mode) => {
     setEditMode(mode);

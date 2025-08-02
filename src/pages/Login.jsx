@@ -1,36 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Icon from '../assets/icon.svg';
 import linkedinService from '../services/linkedinService.js';
 import githubService from '../services/githubService.js';
-import apiService from '../services/api.js';
 import Navbar from '../components/Navbar';
 import './Login.css';
 
-const Login = () => {    const [email, setEmail] = useState('');
+const Login = () => {
+    const { login } = useAuth();
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [linkedinLoading, setLinkedinLoading] = useState(false);
     const [githubLoading, setGithubLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault(); 
         setIsLoading(true); 
 
         const credentials = { email, password };
         
-        apiService.login(credentials)
-            .then((response) => {
-                console.log('Login successful:', response);
-                setIsLoading(false);
-                navigate('/dashboard');
-            })
-            .catch((error) => {
-                console.error('Login failed:', error);
-                setIsLoading(false);
-                alert(`Login failed: ${error.message}`);
-            });
+        try {
+            const response = await login(credentials);
+            console.log('Login successful:', response);
+            setIsLoading(false);
+            navigate('/dashboard');
+        } catch (error) {
+            console.error('Login failed:', error);
+            setIsLoading(false);
+            alert(`Login failed: ${error.message}`);
+        }
     };
 
     const handleLinkedInLogin = async () => {

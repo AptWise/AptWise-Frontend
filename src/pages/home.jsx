@@ -1,19 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './home.css';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
 
 const Home = () => {
-  // Add and remove body class to control scrolling
-  useEffect(() => {
-    document.body.classList.add('home-page-active');
-    return () => {
-      document.body.classList.remove('home-page-active');
-    };
-  }, []);
+  const navigate = useNavigate();
 
   return (
     <div className="home-container">
+      {/* Top Navigation Bar */}
       <Navbar />
 
       {/* Hero Section */}
@@ -24,7 +20,8 @@ const Home = () => {
             AptWise is your AI-powered prep companion — personalized, precise, and ready anytime.
           </p>
           <div className="hero-buttons">
-            <Button type="secondary" text="Try Demo" />
+            <Button type="primary" text="Try Demo" />
+            <Button type="secondary" text="Explore Features" onClick={() => navigate('/login')} />
           </div>
         </div>
       </section>
