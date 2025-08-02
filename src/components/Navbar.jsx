@@ -95,7 +95,17 @@ const Navbar = () => {
       
       <div className="nav-actions">
         {loading ? (
-          <div className="loading-spinner">Loading...</div>
+          <div className="user-menu">
+            <div className="user-badge" style={{ cursor: 'default', opacity: '0.7' }}>
+              <div className="relative">
+                <div className="user-avatar">
+                  U
+                </div>
+                <div className="user-status-indicator"></div>
+              </div>
+              <span className="user-name">Loading...</span>
+            </div>
+          </div>
         ) : user ? (
           <div className="user-menu" ref={dropdownRef}>
             <div 

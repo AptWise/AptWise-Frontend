@@ -25,8 +25,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
       const response = await apiService.login(credentials);
-      if (response.user) {
-        setUser(response.user);
+      // After successful login, refresh user data
+      try {
+        const userData = await apiService.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to get user data after login:', error);
+        // Set user from response if available
+        if (response.user) {
+          setUser(response.user);
+        }
       }
       return response;
   };
@@ -41,12 +49,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const userData = await apiService.getCurrentUser();
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+      setUser(null);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     logout,
-    setUser
+    setUser,
+    refreshUser
   };
 
   return (
