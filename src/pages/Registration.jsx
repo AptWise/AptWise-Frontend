@@ -18,11 +18,7 @@ const Registration = () => {
     skills: [],
     experience: '',
     linkedInUrl: '',
-    githubUrl: '',
-    jobDescription: '',
-    practiceMode: true,
-    interviewCategories: [],
-    difficulty: 'medium'
+    githubUrl: ''
   });
 
   const [errors, setErrors] = useState({
@@ -289,15 +285,6 @@ const Registration = () => {
       skills: prev.skills.filter((_, i) => i !== index)
     }));
   };
-
-  const handleCategoryToggle = (category) => {
-    setFormData(prev => {
-      const categories = prev.interviewCategories.includes(category)
-        ? prev.interviewCategories.filter(c => c !== category)
-        : [...prev.interviewCategories, category];
-      return { ...prev, interviewCategories: categories };
-    });
-  };
   
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -409,26 +396,7 @@ const Registration = () => {
       }
     } catch (error) {
       console.error('LinkedIn authentication failed:', error);
-      
-      // For testing purposes, let's simulate a successful LinkedIn connection
-      // and move to step 2. Remove this in production.
-      if (error.message.includes('Authentication window was closed') || 
-          error.message.includes('LinkedIn authentication failed')) {
-        console.log('LinkedIn popup closed, simulating success for testing...');
-        setFormData(prev => ({
-          ...prev,
-          fullName: prev.fullName || 'Auhona Basu',
-          email: prev.email || 'auhonabasui35@gmail.com',
-          linkedInUrl: prev.linkedInUrl || 'https://linkedin.com/in/auhona-basu',
-        }));
-        setLinkedinConnected(true);
-        if (isStep1) {
-          setStep(2);
-        }
-        alert('LinkedIn profile connected! Continue with step 2.');
-      } else {
-        alert(`LinkedIn authentication failed: ${error.message}`);
-      }
+      alert(`LinkedIn authentication failed: ${error.message}`);
     } finally {
       setLinkedinLoading(false);
     }
@@ -539,26 +507,7 @@ const Registration = () => {
       }
     } catch (error) {
       console.error('GitHub authentication failed:', error);
-      
-      // For testing purposes, let's simulate a successful GitHub connection
-      // and move to step 2. Remove this in production.
-      if (error.message.includes('Authentication window was closed') || 
-          error.message.includes('GitHub authentication failed')) {
-        console.log('GitHub popup closed, simulating success for testing...');
-        setFormData(prev => ({
-          ...prev,
-          fullName: prev.fullName || 'Test User',
-          email: prev.email || 'test@example.com',
-          githubUrl: prev.githubUrl || 'https://github.com/testuser',
-        }));
-        setGithubConnected(true);
-        if (isStep1) {
-          setStep(2);
-        }
-        alert('GitHub profile connected! Continue with step 2.');
-      } else {
-        alert(`GitHub authentication failed: ${error.message}`);
-      }
+      alert(`GitHub authentication failed: ${error.message}`);
     } finally {
       setGithubLoading(false);
     }
@@ -626,9 +575,7 @@ const Registration = () => {
       alert('LinkedIn account disconnected');
     } catch (error) {
       console.error('LinkedIn disconnection failed:', error);
-      // For testing, simulate disconnection
-      setLinkedinConnected(false);
-      alert('LinkedIn account disconnected (Simulated for testing)');
+      alert(`LinkedIn disconnection failed: ${error.message}`);
     }
   };
 
@@ -639,9 +586,7 @@ const Registration = () => {
       alert('GitHub account disconnected');
     } catch (error) {
       console.error('GitHub disconnection failed:', error);
-      // For testing, simulate disconnection
-      setGithubConnected(false);
-      alert('GitHub account disconnected (Simulated for testing)');
+      alert(`GitHub disconnection failed: ${error.message}`);
     }
   };
 
@@ -663,7 +608,7 @@ const Registration = () => {
         <div className="h-1.5 bg-gray-700 relative">
           <div 
             className="h-full bg-cyan-500 transition-all duration-500 ease-in-out"
-            style={{ width: `${(step / 5) * 100}%` }}
+            style={{ width: `${(step / 4) * 100}%` }}
           ></div>
         </div>
 
@@ -1136,119 +1081,8 @@ const Registration = () => {
             </div>
           )}
 
-          {/* Step 4: Personalize Preferences */}
+          {/* Step 4: Completion */}
           {step === 4 && (
-            <div className="w-full max-w-md">
-              <h2 className="text-2xl font-bold text-white mb-2 text-center">Customize Your Learning Experience</h2>
-              <p className="text-gray-400 text-sm mb-6 text-center">Tailor AptWise to your specific needs</p>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-300 mb-3">Career Focus</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="practiceMode"
-                        name="mode"
-                        checked={formData.practiceMode}
-                        onChange={() => setFormData(prev => ({ ...prev, practiceMode: true }))}
-                        className="h-4 w-4 text-cyan-500 border-gray-600 focus:ring-cyan-500"
-                      />
-                      <label htmlFor="practiceMode" className="ml-2 block text-sm text-gray-300">
-                        Practice Mode (General Questions)
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="careerMode"
-                        name="mode"
-                        checked={!formData.practiceMode}
-                        onChange={() => setFormData(prev => ({ ...prev, practiceMode: false }))}
-                        className="h-4 w-4 text-cyan-500 border-gray-600 focus:ring-cyan-500"
-                      />
-                      <label htmlFor="careerMode" className="ml-2 block text-sm text-gray-300">
-                        Career Mode (Targeted for Specific Roles)
-                      </label>
-                    </div>
-                  </div>
-
-                  {!formData.practiceMode && (
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Upload Job Description</label>
-                      <div className="flex items-center justify-center w-full">
-                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors duration-300">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg className="w-8 h-8 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                            <p className="text-xs text-gray-400">PDF, DOCX or TXT (Max. 5MB)</p>
-                          </div>
-                          <input type="file" className="hidden" />
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-gray-300 mb-3">Interview Categories</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {['Technical', 'Behavioral', 'System Design', 'Case Study'].map(category => (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => handleCategoryToggle(category)}
-                        className={`py-2 px-3 rounded-lg border transition-all duration-300 ${formData.interviewCategories.includes(category) ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'border-gray-600 text-gray-300 hover:bg-gray-700'}`}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-gray-300 mb-3">Difficulty Level</h3>
-                  <div className="px-2">
-                    <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>Easy</span>
-                      <span>Medium</span>
-                      <span>Hard</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="1"
-                      value={['easy', 'medium', 'hard'].indexOf(formData.difficulty)}
-                      onChange={(e) => setFormData(prev => ({ ...prev, difficulty: ['easy', 'medium', 'hard'][e.target.value]}))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-between pt-2">
-                  <button
-                    onClick={prevStep}
-                    className="py-2 px-6 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={nextStep}
-                    className="py-2 px-6 bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: Completion */}
-          {step === 5 && (
             <div className="w-full max-w-md text-center">
               <div className="mb-6">
                 <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
